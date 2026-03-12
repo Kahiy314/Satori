@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Xcode / iOS Build files
+build/
+DerivedData/
+.build/
+.tools/
+Satori.xcodeproj/
+*.yml
+
+# VS Code
+.vscode/
+
+# Other common junk
+*.swp
+*.lock
+doc/
