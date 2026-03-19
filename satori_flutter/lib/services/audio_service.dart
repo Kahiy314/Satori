@@ -1,10 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'media_session_service.dart';
 
 /// 音频服务
 /// 统一管理白噪音和音乐播放，支持多音源叠加 + 交叉淡化
 class AudioService {
   AudioService._();
   static final instance = AudioService._();
+
+  /// 可选的系统媒体会话服务（Phase P6）。
+  /// 调用者在初始化时注入，听雨和抚琴后台播放时自动同步。
+  MediaSessionService? mediaSession;
 
   // ── 白噪音播放器（可叠加多个）──
   final Map<String, AudioPlayer> _ambientPlayers = {};
@@ -53,7 +58,7 @@ class AudioService {
 
   // MARK: - 音乐
 
-  Future<void> playMusic(String fileName) async {
+  Future<void> playMusic(String fileName, {String? title, String? artist, Duration? duration}) async {
     await _musicPlayer?.stop();
     await _musicPlayer?.dispose();
 
@@ -62,6 +67,14 @@ class AudioService {
     await _musicPlayer!.play(AssetSource('audio/$fileName.mp3'));
     isMusicPlaying = true;
     _fadeIn(_musicPlayer!, targetVolume: 1.0, duration: const Duration(milliseconds: 1500));
+
+    // 同步系统媒体会话
+    mediaSession?.updateMetadata(
+      title: title ?? fileName,
+      artist: artist,
+      duration: duration,
+    );
+    mediaSession?.updatePlaybackState(isPlaying: true);
   }
 
   Future<void> toggleMusicPlayPause() async {
@@ -75,6 +88,7 @@ class AudioService {
       await player.resume();
       isMusicPlaying = true;
     }
+    mediaSession?.updatePlaybackState(isPlaying: isMusicPlaying);
   }
 
   Future<void> stopMusic() async {
@@ -84,6 +98,8 @@ class AudioService {
     await _fadeOut(player, duration: const Duration(seconds: 1));
     await player.stop();
     isMusicPlaying = false;
+    mediaSession?.updatePlaybackState(isPlaying: false);
+    mediaSession?.release();
   }
 
   Future<void> seekMusic(Duration position) async {

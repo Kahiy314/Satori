@@ -1,3 +1,13 @@
 export 'audio_service.dart';
+export 'focus_activity_service.dart';
 export 'haptic_service.dart';
+export 'local_session_repository.dart';
+export 'local_stats_aggregator.dart';
+export 'local_user_preferences.dart';
+export 'media_session_service.dart';
+export 'platform_focus_activity_service.dart';
+export 'platform_media_session_service.dart';
+export 'session_repository.dart';
+export 'stats_aggregator.dart';
 export 'timer_service.dart';
+export 'user_preferences.dart';

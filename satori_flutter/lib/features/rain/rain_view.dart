@@ -1,13 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../core/theme/theme.dart';
+import '../../core/components/drawer_entry_button.dart';
 import '../../services/haptic_service.dart';
 import 'rain_view_model.dart';
 import 'components/audio_wave_view.dart';
 
 /// 听雨主页面
 class RainView extends StatefulWidget {
-  const RainView({super.key});
+  final VoidCallback? onDrawerTap;
+  const RainView({super.key, this.onDrawerTap});
 
   @override
   State<RainView> createState() => _RainViewState();
@@ -97,7 +99,7 @@ class _RainViewState extends State<RainView>
               ),
             ),
           ],
-          const SizedBox(height: 100),
+          const SizedBox(height: SatoriTheme.spacingL),
         ],
       ),
     );
@@ -106,10 +108,12 @@ class _RainViewState extends State<RainView>
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        SatoriTheme.spacingL, SatoriTheme.spacingM, SatoriTheme.spacingL, 0,
+        SatoriTheme.spacingS, SatoriTheme.spacingM, SatoriTheme.spacingL, 0,
       ),
       child: Row(
         children: [
+          if (widget.onDrawerTap != null)
+            DrawerEntryButton(onTap: widget.onDrawerTap!),
           Text('听雨', style: SatoriTypography.largeTitle),
           const Spacer(),
         ],

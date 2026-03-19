@@ -1,13 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../core/theme/theme.dart';
+import '../../core/components/drawer_entry_button.dart';
 import '../../services/haptic_service.dart';
 import 'qin_view_model.dart';
 import 'components/music_player_view.dart';
 
 /// 抚琴主页面
 class QinView extends StatefulWidget {
-  const QinView({super.key});
+  final VoidCallback? onDrawerTap;
+  const QinView({super.key, this.onDrawerTap});
 
   @override
   State<QinView> createState() => _QinViewState();
@@ -52,7 +54,7 @@ class _QinViewState extends State<QinView> {
               padding: const EdgeInsets.only(bottom: SatoriTheme.spacingS),
               child: MusicPlayerView(vm: _vm),
             ),
-          const SizedBox(height: 100),
+          const SizedBox(height: SatoriTheme.spacingL),
         ],
       ),
     );
@@ -61,10 +63,12 @@ class _QinViewState extends State<QinView> {
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        SatoriTheme.spacingL, SatoriTheme.spacingM, SatoriTheme.spacingL, 0,
+        SatoriTheme.spacingS, SatoriTheme.spacingM, SatoriTheme.spacingL, 0,
       ),
       child: Row(
         children: [
+          if (widget.onDrawerTap != null)
+            DrawerEntryButton(onTap: widget.onDrawerTap!),
           Text('抚琴', style: SatoriTypography.largeTitle),
           const Spacer(),
         ],

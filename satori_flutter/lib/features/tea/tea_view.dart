@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/theme.dart';
+import '../../core/components/drawer_entry_button.dart';
 import '../../services/haptic_service.dart';
 import 'tea_view_model.dart';
 import 'components/membership_card_view.dart';
 
 /// 品茗主页面
 class TeaView extends StatefulWidget {
-  const TeaView({super.key});
+  final VoidCallback? onDrawerTap;
+  const TeaView({super.key, this.onDrawerTap});
 
   @override
   State<TeaView> createState() => _TeaViewState();
@@ -42,7 +44,13 @@ class _TeaViewState extends State<TeaView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: SatoriTheme.spacingM),
-            Text('品茗', style: SatoriTypography.largeTitle),
+            Row(
+              children: [
+                if (widget.onDrawerTap != null)
+                  DrawerEntryButton(onTap: widget.onDrawerTap!),
+                Text('品茗', style: SatoriTypography.largeTitle),
+              ],
+            ),
             const SizedBox(height: SatoriTheme.spacingL),
 
             // 当前等级卡
@@ -61,7 +69,7 @@ class _TeaViewState extends State<TeaView> {
 
             // 致谢
             _buildAcknowledgement(),
-            const SizedBox(height: 120),
+            const SizedBox(height: SatoriTheme.spacingL),
           ],
         ),
       ),
