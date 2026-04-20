@@ -6,6 +6,8 @@ Page({
     restDuration: 5,
     currentWhiteNoiseLabel: '雨声',
     currentRestSoundLabel: '古筝音',
+    whiteNoiseDropdownOpen: false,
+    restSoundDropdownOpen: false,
     settings: {
       themeOptions: [
         { value: 'light', label: '浅色模式', selected: true },
@@ -32,18 +34,32 @@ Page({
     console.log('设置页面加载')
   },
 
+  toggleWhiteNoiseDropdown() {
+    this.setData({
+      whiteNoiseDropdownOpen: !this.data.whiteNoiseDropdownOpen,
+      restSoundDropdownOpen: false
+    })
+  },
+
+  toggleRestSoundDropdown() {
+    this.setData({
+      restSoundDropdownOpen: !this.data.restSoundDropdownOpen,
+      whiteNoiseDropdownOpen: false
+    })
+  },
+
   selectTheme(e: any) {
     const theme = e.currentTarget.dataset.theme
     const updatedOptions = this.data.settings.themeOptions.map(option => ({
       ...option,
       selected: option.value === theme
     }))
-    
+
     this.setData({
       theme: theme,
       'settings.themeOptions': updatedOptions
     })
-    
+
     wx.showToast({
       title: '主题已切换',
       icon: 'success'
@@ -56,13 +72,14 @@ Page({
       ...option,
       selected: option.value === noise
     }))
-    
+
     const selectedOption = updatedOptions.find(option => option.selected)
-    
+
     this.setData({
       whiteNoise: noise,
       'settings.whiteNoiseOptions': updatedOptions,
-      currentWhiteNoiseLabel: selectedOption ? selectedOption.label : '无'
+      currentWhiteNoiseLabel: selectedOption ? selectedOption.label : '无',
+      whiteNoiseDropdownOpen: false
     })
   },
 
@@ -72,13 +89,14 @@ Page({
       ...option,
       selected: option.value === sound
     }))
-    
+
     const selectedOption = updatedOptions.find(option => option.selected)
-    
+
     this.setData({
       restSound: sound,
       'settings.restSoundOptions': updatedOptions,
-      currentRestSoundLabel: selectedOption ? selectedOption.label : '无'
+      currentRestSoundLabel: selectedOption ? selectedOption.label : '无',
+      restSoundDropdownOpen: false
     })
   },
 

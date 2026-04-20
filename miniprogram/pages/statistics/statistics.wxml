@@ -3,42 +3,43 @@
   <!-- 数据看板 -->
   <view class="stats-board">
     <view class="board-title">📊 数据看板</view>
-    
-    <!-- 第一行统计卡片 -->
-    <view class="stats-row">
-      <view class="stat-card">
-        <view class="stat-value">{{statsData.todayFocus}}</view>
-        <view class="stat-label">今日专注</view>
-        <view class="stat-unit">分钟</view>
+
+    <!-- 数据表格 -->
+    <view class="stats-table">
+      <view class="stats-table-row">
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.todayFocus}}</view>
+          <view class="cell-label">今日专注</view>
+          <view class="cell-unit">分钟</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.todayTasks}}</view>
+          <view class="cell-label">今日完成</view>
+          <view class="cell-unit">个</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.weekFocus}}</view>
+          <view class="cell-label">本周专注</view>
+          <view class="cell-unit">分钟</view>
+        </view>
       </view>
-      <view class="stat-card">
-        <view class="stat-value">{{statsData.todayTasks}}</view>
-        <view class="stat-label">完成任务</view>
-        <view class="stat-unit">个</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">{{statsData.weekFocus}}</view>
-        <view class="stat-label">本周专注</view>
-        <view class="stat-unit">分钟</view>
-      </view>
-    </view>
-    
-    <!-- 第二行统计卡片 -->
-    <view class="stats-row">
-      <view class="stat-card">
-        <view class="stat-value">{{statsData.weekTasks}}</view>
-        <view class="stat-label">完成任务</view>
-        <view class="stat-unit">个</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">{{statsData.totalFocus}}</view>
-        <view class="stat-label">总专注</view>
-        <view class="stat-unit">分钟</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">{{statsData.totalTasks}}</view>
-        <view class="stat-label">总任务</view>
-        <view class="stat-unit">个</view>
+      <view class="stats-table-divider"></view>
+      <view class="stats-table-row">
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.weekTasks}}</view>
+          <view class="cell-label">本周完成</view>
+          <view class="cell-unit">个</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.totalFocus}}</view>
+          <view class="cell-label">总专注</view>
+          <view class="cell-unit">分钟</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.totalTasks}}</view>
+          <view class="cell-label">总任务</view>
+          <view class="cell-unit">个</view>
+        </view>
       </view>
     </view>
   </view>
@@ -47,32 +48,56 @@
   <view class="trend-section">
     <view class="section-title">📈 近7天专注趋势</view>
     <view class="trend-chart">
+      <!-- Y轴刻度 -->
       <view class="chart-y-axis">
-        <text class="y-label">{{getMaxValue()}}</text>
-        <text class="y-label">{{Math.round(getMaxValue() * 0.75)}}</text>
-        <text class="y-label">{{Math.round(getMaxValue() * 0.5)}}</text>
-        <text class="y-label">{{Math.round(getMaxValue() * 0.25)}}</text>
-        <text class="y-label">0</text>
+        <text class="y-label" wx:for="{{yAxisLabels}}" wx:key="index">{{item}}</text>
       </view>
-      <view class="chart-content">
+
+      <!-- 图表主体 -->
+      <view class="chart-body">
+        <!-- 网格背景 -->
         <view class="chart-grid">
-          <view class="grid-line" wx:for="{{5}}" wx:key="index"></view>
+          <view class="grid-row" wx:for="{{7}}" wx:key="index"></view>
         </view>
-        <view class="data-points">
-          <view 
-            class="data-point" 
-            wx:for="{{trendData}}" 
+
+        <!-- 折线连接（SVG路径） -->
+        <view class="chart-line-svg">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <polyline
+              points="{{linePoints}}"
+              fill="none"
+              stroke="#d4a373"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle
+              cx="{{item.x}}"
+              cy="{{item.y}}"
+              r="3"
+              fill="#d4a373"
+              wx:for="{{dotPositions}}"
+              wx:key="index"
+            />
+          </svg>
+        </view>
+
+        <!-- 数据点（可点击/悬停显示数值） -->
+        <view class="chart-dots">
+          <view
+            class="chart-dot"
+            wx:for="{{trendData}}"
             wx:key="day"
-            style="left: {{(index * 100 / 6)}}%; bottom: {{(item.value / getMaxValue()) * 100}}%"
+            style="left: {{item.xPercent}}%; bottom: {{item.yPercent}}%"
           >
-            <text class="point-value">{{item.value}}</text>
-            <view class="point-dot"></view>
+            <view class="dot-circle"></view>
           </view>
         </view>
-        <view class="chart-line"></view>
-      </view>
-      <view class="chart-x-axis">
-        <text class="x-label" wx:for="{{trendData}}" wx:key="day">{{item.day}}</text>
+
+        <!-- X轴日期标签 -->
+        <view class="chart-x-axis">
+          <text class="x-label" wx:for="{{trendData}}" wx:key="day">{{item.day}}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -84,7 +109,7 @@
       <view class="ai-content">{{aiSummary.content}}</view>
       <view class="ai-footer">
         <text class="update-time">更新于：{{aiSummary.lastUpdate}}</text>
-        <button class="refresh-btn" bindtap="refreshAI">🔄 刷新</button>
+        <view class="refresh-btn" bindtap="refreshAI">🔄 刷新</view>
       </view>
     </view>
   </view>

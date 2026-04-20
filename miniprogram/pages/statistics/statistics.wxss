@@ -22,36 +22,48 @@
   text-align: center;
 }
 
-.stats-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
+/* 数据表格（三等分布局） */
+.stats-table {
+  background: #f8f4e9;
+  border: 1px solid #e8e0d0;
+  border-radius: 15rpx;
+  overflow: hidden;
 }
 
-.stat-card {
+.stats-table-row {
+  display: flex;
+}
+
+.stats-table-divider {
+  height: 1px;
+  background: #e8e0d0;
+}
+
+.stats-table-cell {
   flex: 1;
-  background: #f8f4e9;
-  border-radius: 15rpx;
   padding: 25rpx 15rpx;
   text-align: center;
-  margin: 0 10rpx;
-  border: 1px solid #e8e0d0;
+  border-right: 1px solid #e8e0d0;
 }
 
-.stat-value {
+.stats-table-cell:last-child {
+  border-right: none;
+}
+
+.cell-value {
   font-size: 36rpx;
   font-weight: bold;
   color: #d4a373;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
 }
 
-.stat-label {
+.cell-label {
   font-size: 24rpx;
   color: #8c7b6c;
-  margin-bottom: 5rpx;
+  margin-bottom: 4rpx;
 }
 
-.stat-unit {
+.cell-unit {
   font-size: 20rpx;
   color: #a1887f;
 }
@@ -70,119 +82,119 @@
   font-weight: bold;
   color: #5d4037;
   margin-bottom: 30rpx;
+  text-align: center;
 }
 
+/* 图表整体布局 */
 .trend-chart {
   display: flex;
-  height: 300rpx;
-  position: relative;
 }
 
+/* Y轴刻度 */
 .chart-y-axis {
+  width: 80rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 80rpx;
-  padding-right: 20rpx;
+  padding-bottom: 50rpx;
 }
 
 .y-label {
-  font-size: 20rpx;
-  color: #8c7b6c;
+  font-size: 22rpx;
+  color: #5d4037;
   text-align: right;
+  padding-right: 20rpx;
+  font-weight: 500;
 }
 
-.chart-content {
+/* 图表主体 */
+.chart-body {
   flex: 1;
   position: relative;
-  border-left: 1px solid #e8e0d0;
-  border-bottom: 1px solid #e8e0d0;
+  height: 320rpx;
 }
 
+/* 网格背景 */
 .chart-grid {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-}
-
-.grid-line {
-  height: 1px;
-  background: #f0f0f0;
-  margin-bottom: 75rpx;
-}
-
-.data-points {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.data-point {
-  position: absolute;
-  transform: translateX(-50%);
+  bottom: 50rpx;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: space-between;
 }
 
-.point-value {
-  font-size: 20rpx;
-  color: #d4a373;
-  margin-bottom: 5rpx;
+.grid-row {
+  height: 1px;
+  background: #e8e0d0;
+  position: relative;
 }
 
-.point-dot {
-  width: 12rpx;
-  height: 12rpx;
-  background: #d4a373;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 2px #d4a373;
-}
-
-.chart-line {
+.grid-row::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(to right, 
-    transparent 0%, 
-    rgba(212, 163, 115, 0.3) 16.67%, 
-    rgba(212, 163, 115, 0.5) 33.33%, 
-    rgba(212, 163, 115, 0.7) 50%, 
-    rgba(212, 163, 115, 0.5) 66.67%, 
-    rgba(212, 163, 115, 0.3) 83.33%, 
-    transparent 100%
-  );
-  clip-path: polygon(
-    0% 100%,
-    16.67% 20%,
-    33.33% 40%,
-    50% 60%,
-    66.67% 50%,
-    83.33% 30%,
-    100% 40%,
-    100% 100%
-  );
+  height: 1px;
+  background: #f0ece6;
 }
 
+/* SVG折线 */
+.chart-line-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 50rpx;
+}
+
+.chart-line-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 数据点 */
+.chart-dots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 50rpx;
+}
+
+.chart-dot {
+  position: absolute;
+  transform: translate(-50%, 50%);
+}
+
+.dot-circle {
+  width: 14rpx;
+  height: 14rpx;
+  background: #d4a373;
+  border-radius: 50%;
+  border: 3rpx solid white;
+  box-shadow: 0 0 0 3rpx #d4a373;
+}
+
+/* X轴日期标签 */
 .chart-x-axis {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: space-between;
-  margin-top: 20rpx;
-  padding-left: 80rpx;
 }
 
 .x-label {
-  font-size: 20rpx;
-  color: #8c7b6c;
   flex: 1;
   text-align: center;
+  font-size: 22rpx;
+  color: #5d4037;
+  font-weight: 500;
 }
 
 /* AI学习总结 */
@@ -203,7 +215,7 @@
 .ai-content {
   font-size: 26rpx;
   color: #5d4037;
-  line-height: 1.6;
+  line-height: 1.8;
   margin-bottom: 20rpx;
 }
 
@@ -221,8 +233,10 @@
 .refresh-btn {
   background: #d4a373;
   color: white;
-  border: none;
-  padding: 12rpx 25rpx;
+  padding: 10rpx 24rpx;
   border-radius: 20rpx;
   font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
 }

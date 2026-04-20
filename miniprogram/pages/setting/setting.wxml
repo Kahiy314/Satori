@@ -7,7 +7,7 @@
   <view class="setting-section">
     <view class="section-title">🎨 小程序主题</view>
     <view class="theme-options">
-      <view 
+      <view
         class="theme-option {{item.selected ? 'selected' : ''}}"
         wx:for="{{settings.themeOptions}}"
         wx:key="value"
@@ -23,62 +23,53 @@
   <!-- 默认白噪音 -->
   <view class="setting-section">
     <view class="section-title">🌧️ 默认白噪音</view>
-    <view class="dropdown-select">
+    <view class="dropdown-select" bindtap="toggleWhiteNoiseDropdown">
       <view class="select-current">
-        <text class="current-text">
-          {{currentWhiteNoiseLabel}}
-        </text>
-        <text class="dropdown-icon">▼</text>
-      </view>
-      <view class="select-options">
-        <view 
-          class="select-option {{item.selected ? 'selected' : ''}}"
-          wx:for="{{settings.whiteNoiseOptions}}"
-          wx:key="value"
-          data-noise="{{item.value}}"
-          bindtap="selectWhiteNoise"
-        >
-          <text class="option-icon">
-            {{item.value === 'rain' ? '🌧️' : 
-              item.value === 'waves' ? '🌊' : 
-              item.value === 'fire' ? '🔥' : 
-              item.value === 'gugin' ? '🎵' : '🔇'}}
-          </text>
-          <text class="option-text">{{item.label}}</text>
-          <text class="checkmark {{item.selected ? 'show' : ''}}">✓</text>
-        </view>
+        <text class="current-text">当前：{{currentWhiteNoiseLabel}}</text>
+        <text class="dropdown-icon {{whiteNoiseDropdownOpen ? 'expanded' : ''}}">▼</text>
       </view>
     </view>
+    <view class="dropdown-options {{whiteNoiseDropdownOpen ? 'open' : ''}}">
+      <view
+        class="dropdown-option {{item.selected ? 'selected' : ''}}"
+        wx:for="{{settings.whiteNoiseOptions}}"
+        wx:key="value"
+        data-noise="{{item.value}}"
+        bindtap="selectWhiteNoise"
+      >
+        <text class="option-icon">
+          {{item.value === 'rain' ? '🌧️' : item.value === 'waves' ? '🌊' : item.value === 'fire' ? '🔥' : item.value === 'gugin' ? '🎵' : '🔇'}}
+        </text>
+        <text class="option-text">{{item.label}}</text>
+      </view>
+    </view>
+    <view class="options-hint">选项：雨声、海浪、篝火、古琴、无</view>
   </view>
 
   <!-- 默认休息铃声 -->
   <view class="setting-section">
     <view class="section-title">🔔 默认休息铃声</view>
-    <view class="dropdown-select">
+    <view class="dropdown-select" bindtap="toggleRestSoundDropdown">
       <view class="select-current">
-        <text class="current-text">
-          {{currentRestSoundLabel}}
-        </text>
-        <text class="dropdown-icon">▼</text>
-      </view>
-      <view class="select-options">
-        <view 
-          class="select-option {{item.selected ? 'selected' : ''}}"
-          wx:for="{{settings.restSoundOptions}}"
-          wx:key="value"
-          data-sound="{{item.value}}"
-          bindtap="selectRestSound"
-        >
-          <text class="option-icon">
-            {{item.value === 'guzheng' ? '🎵' : 
-              item.value === 'bowl' ? '🪘' : 
-              item.value === 'birds' ? '🐦' : '🔇'}}
-          </text>
-          <text class="option-text">{{item.label}}</text>
-          <text class="checkmark {{item.selected ? 'show' : ''}}">✓</text>
-        </view>
+        <text class="current-text">当前：{{currentRestSoundLabel}}</text>
+        <text class="dropdown-icon {{restSoundDropdownOpen ? 'expanded' : ''}}">▼</text>
       </view>
     </view>
+    <view class="dropdown-options {{restSoundDropdownOpen ? 'open' : ''}}">
+      <view
+        class="dropdown-option {{item.selected ? 'selected' : ''}}"
+        wx:for="{{settings.restSoundOptions}}"
+        wx:key="value"
+        data-sound="{{item.value}}"
+        bindtap="selectRestSound"
+      >
+        <text class="option-icon">
+          {{item.value === 'guzheng' ? '🎵' : item.value === 'bowl' ? '🪘' : item.value === 'birds' ? '🐦' : '🔇'}}
+        </text>
+        <text class="option-text">{{item.label}}</text>
+      </view>
+    </view>
+    <view class="options-hint">选项：古筝音、钵音、鸟鸣、无</view>
   </view>
 
   <!-- 默认休息时长 -->
@@ -86,12 +77,16 @@
     <view class="section-title">⏰ 默认休息时长</view>
     <view class="duration-control">
       <view class="control-wrapper">
-        <button class="control-btn minus" bindtap="decreaseRestDuration">-</button>
+        <view class="control-btn minus" bindtap="decreaseRestDuration">
+          <text class="btn-text">-</text>
+        </view>
         <view class="duration-display">
           <text class="duration-value">{{restDuration}}</text>
           <text class="duration-unit">分钟</text>
         </view>
-        <button class="control-btn plus" bindtap="increaseRestDuration">+</button>
+        <view class="control-btn plus" bindtap="increaseRestDuration">
+          <text class="btn-text">+</text>
+        </view>
       </view>
     </view>
   </view>
@@ -100,8 +95,7 @@
   <view class="setting-section">
     <view class="section-title">ℹ️ 关于</view>
     <view class="about-info" bindtap="showAbout">
-      <text class="version">版本 1.0.0</text>
-      <text class="description">· 弘扬国风文化</text>
+      <text class="version">版本 1.0.0 · 弘扬国风文化</text>
     </view>
   </view>
 </view>

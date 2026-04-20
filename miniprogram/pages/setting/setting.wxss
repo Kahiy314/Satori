@@ -17,6 +17,7 @@
   box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
 }
 
+/* 设置区块 */
 .setting-section {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 20rpx;
@@ -41,13 +42,21 @@
 .theme-option {
   display: flex;
   align-items: center;
-  padding: 20rpx 30rpx;
+  padding: 18rpx 20rpx;
   background: #f8f4e9;
   border: 1px solid #e8e0d0;
   border-radius: 15rpx;
   flex: 1;
-  margin: 0 10rpx;
+  margin: 0 8rpx;
   transition: all 0.3s ease;
+}
+
+.theme-option:first-child {
+  margin-left: 0;
+}
+
+.theme-option:last-child {
+  margin-right: 0;
 }
 
 .theme-option.selected {
@@ -60,8 +69,9 @@
   height: 30rpx;
   border: 2px solid #8c7b6c;
   border-radius: 50%;
-  margin-right: 15rpx;
+  margin-right: 12rpx;
   position: relative;
+  flex-shrink: 0;
 }
 
 .option-radio.selected {
@@ -81,8 +91,9 @@
 }
 
 .option-label {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: #5d4037;
+  white-space: nowrap;
 }
 
 .theme-option.selected .option-label {
@@ -91,14 +102,14 @@
 
 /* 下拉选择器 */
 .dropdown-select {
-  position: relative;
+  margin-bottom: 15rpx;
 }
 
 .select-current {
   background: #f8f4e9;
   border: 1px solid #e8e0d0;
   border-radius: 15rpx;
-  padding: 25rpx;
+  padding: 22rpx 25rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -112,39 +123,39 @@
 .dropdown-icon {
   font-size: 20rpx;
   color: #8c7b6c;
+  transition: transform 0.3s ease;
 }
 
-.select-options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e8e0d0;
-  border-radius: 0 0 15rpx 15rpx;
-  z-index: 10;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+.dropdown-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
+  border: 1px solid #e8e0d0;
+  border-radius: 0 0 15rpx 15rpx;
+  border-top: none;
+  background: white;
 }
 
-.dropdown-select:active .select-options {
-  max-height: 400rpx;
+.dropdown-options.open {
+  max-height: 500rpx;
 }
 
-.select-option {
+.dropdown-option {
   display: flex;
   align-items: center;
   padding: 20rpx 25rpx;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.select-option:last-child {
+.dropdown-option:last-child {
   border-bottom: none;
 }
 
-.select-option.selected {
+.dropdown-option.selected {
   background: #f8f4e9;
 }
 
@@ -159,21 +170,17 @@
   color: #5d4037;
 }
 
-.checkmark {
-  font-size: 24rpx;
-  color: #d4a373;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.checkmark.show {
-  opacity: 1;
+.options-hint {
+  font-size: 22rpx;
+  color: #a1887f;
+  margin-top: 12rpx;
+  padding-left: 5rpx;
 }
 
 /* 时长控制 */
 .duration-control {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .control-wrapper {
@@ -181,40 +188,47 @@
   align-items: center;
   background: #f8f4e9;
   border: 1px solid #e8e0d0;
-  border-radius: 25rpx;
-  padding: 15rpx;
+  border-radius: 20rpx;
+  padding: 8rpx 12rpx;
+  overflow: hidden;
 }
 
 .control-btn {
-  width: 60rpx;
-  height: 60rpx;
+  width: 48rpx;
+  height: 48rpx;
   background: #d4a373;
   color: white;
-  border: none;
   border-radius: 50%;
-  font-size: 28rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 20rpx;
+  flex-shrink: 0;
 }
 
 .control-btn:active {
   background: #b08c5a;
 }
 
+.btn-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+}
+
 .duration-display {
   display: flex;
   align-items: baseline;
-  min-width: 120rpx;
-  text-align: center;
+  margin: 0 20rpx;
 }
 
 .duration-value {
   font-size: 36rpx;
   font-weight: bold;
   color: #5d4037;
-  margin-right: 10rpx;
+  margin-right: 8rpx;
+  min-width: 40rpx;
+  text-align: center;
 }
 
 .duration-unit {
@@ -224,23 +238,10 @@
 
 /* 关于信息 */
 .about-info {
-  background: #f8f4e9;
-  border: 1px solid #e8e0d0;
-  border-radius: 15rpx;
-  padding: 25rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 10rpx 0;
 }
 
 .version {
   font-size: 26rpx;
-  font-weight: bold;
-  color: #5d4037;
-  margin-bottom: 10rpx;
-}
-
-.description {
-  font-size: 22rpx;
   color: #8c7b6c;
 }
