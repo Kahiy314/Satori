@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "incense-burner": "/components/incense-burner/incense-burner",
-    "yin-yang": "/components/yin-yang/yin-yang"
+    "incense-burner": "/components/incense-burner/incense-burner"
   }
 }

@@ -56,10 +56,8 @@
 
   <!-- ========== 休息模式 ========== -->
   <view class="mode-container rest-mode {{mode === 'rest' ? 'active' : ''}}">
-    <!-- 阴阳鱼动画 -->
-    <view class="animation-section">
-      <yin-yang active="{{mode === 'rest'}}" />
-    </view>
+    <!-- 休息图标 -->
+    <view class="rest-icon">💤</view>
 
     <!-- 休息信息 -->
     <view class="task-info-block">

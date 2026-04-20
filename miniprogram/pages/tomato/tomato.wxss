@@ -34,11 +34,17 @@
   display: block;
 }
 
-/* ========== 动画区域 ========== */
-.animation-section {
-  display: flex;
-  justify-content: center;
-  margin: 20rpx 0 10rpx;
+/* ========== 休息图标 ========== */
+.rest-icon {
+  font-size: 120rpx;
+  text-align: center;
+  margin: 30rpx 0;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
 }
 
 /* ========== 任务信息 ========== */
