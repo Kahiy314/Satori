@@ -1,5 +1,6 @@
 {
-  "navigationBarTitleText": "番茄计时",
-  "enablePullDownRefresh": false,
-  "backgroundColor": "#f8f4e9"
+  "usingComponents": {
+    "incense-burner": "/components/incense-burner/incense-burner",
+    "yin-yang": "/components/yin-yang/yin-yang"
+  }
 }

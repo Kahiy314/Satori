@@ -4,7 +4,7 @@
   <view class="stats-board">
     <view class="board-title">📊 数据看板</view>
 
-    <!-- 数据表格 -->
+    <!-- 数据表格（三等分） -->
     <view class="stats-table">
       <view class="stats-table-row">
         <view class="stats-table-cell">
@@ -54,49 +54,13 @@
       </view>
 
       <!-- 图表主体 -->
-      <view class="chart-body">
-        <!-- 网格背景 -->
-        <view class="chart-grid">
-          <view class="grid-row" wx:for="{{7}}" wx:key="index"></view>
-        </view>
+      <view class="trend-chart-body">
+        <!-- 画布 -->
+        <canvas class="chart-canvas" canvas-id="trendCanvas" style="width:295px;height:135px" />
 
-        <!-- 折线连接（SVG路径） -->
-        <view class="chart-line-svg">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-            <polyline
-              points="{{linePoints}}"
-              fill="none"
-              stroke="#d4a373"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <circle
-              cx="{{item.x}}"
-              cy="{{item.y}}"
-              r="3"
-              fill="#d4a373"
-              wx:for="{{dotPositions}}"
-              wx:key="index"
-            />
-          </svg>
-        </view>
-
-        <!-- 数据点（可点击/悬停显示数值） -->
-        <view class="chart-dots">
-          <view
-            class="chart-dot"
-            wx:for="{{trendData}}"
-            wx:key="day"
-            style="left: {{item.xPercent}}%; bottom: {{item.yPercent}}%"
-          >
-            <view class="dot-circle"></view>
-          </view>
-        </view>
-
-        <!-- X轴日期标签 -->
+        <!-- 日期标签 -->
         <view class="chart-x-axis">
-          <text class="x-label" wx:for="{{trendData}}" wx:key="day">{{item.day}}</text>
+          <text class="x-label" wx:for="{{trendData}}" wx:key="index" style="left: {{item.xPercent}}%">{{item.day}}</text>
         </view>
       </view>
     </view>
@@ -109,7 +73,9 @@
       <view class="ai-content">{{aiSummary.content}}</view>
       <view class="ai-footer">
         <text class="update-time">更新于：{{aiSummary.lastUpdate}}</text>
-        <view class="refresh-btn" bindtap="refreshAI">🔄 刷新</view>
+        <view class="refresh-btn" bindtap="refreshAI">
+          🔄 刷新
+        </view>
       </view>
     </view>
   </view>

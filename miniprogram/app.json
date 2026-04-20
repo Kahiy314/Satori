@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/task/task",
+    "pages/tomato/tomato",
     "pages/calendar/calendar",
     "pages/statistics/statistics",
     "pages/setting/setting"
@@ -8,37 +9,31 @@
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "香韵番茄钟",
-    "navigationBarBackgroundColor": "#f8f4e9"
+    "navigationBarBackgroundColor": "#f8f4e9",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false
   },
   "tabBar": {
     "color": "#8c7b6c",
     "selectedColor": "#d4a373",
-    "backgroundColor": "#f8f4e9",
+    "backgroundColor": "#faf6f0",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/task/task",
-        "text": "📋 任务",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "text": "任务"
       },
       {
         "pagePath": "pages/calendar/calendar",
-        "text": "📅 日历",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "text": "日历"
       },
       {
         "pagePath": "pages/statistics/statistics",
-        "text": "📊 统计",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "text": "统计"
       },
       {
         "pagePath": "pages/setting/setting",
-        "text": "⚙️ 设置",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "text": "设置"
       }
     ]
   },

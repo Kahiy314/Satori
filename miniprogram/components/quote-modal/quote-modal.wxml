@@ -1,0 +1,18 @@
+<!-- 名言弹窗组件 -->
+<view class="quote-modal-wrapper">
+  <!-- 遮罩 -->
+  <view class="modal-mask {{show ? 'show' : ''}}" bindtap="onClose"></view>
+
+  <!-- 弹窗内容 -->
+  <view class="modal-card {{show ? 'show' : ''}}">
+    <!-- 名言卡片 -->
+    <view class="quote-card">
+      <view class="quote-success">✨ 打卡成功！ ✨</view>
+      <view class="quote-text">"{{quote.text}}"</view>
+      <view class="quote-source">—— {{quote.source}}</view>
+    </view>
+
+    <!-- 确认按钮 -->
+    <view class="confirm-btn" bindtap="onClose">确定</view>
+  </view>
+</view>

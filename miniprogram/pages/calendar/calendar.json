@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "日历打卡",
-  "enablePullDownRefresh": false,
-  "backgroundColor": "#f8f4e9"
+  "usingComponents": {
+    "quote-modal": "/components/quote-modal/quote-modal"
+  }
 }

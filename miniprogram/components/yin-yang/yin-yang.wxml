@@ -1,0 +1,18 @@
+<!-- 阴阳鱼动画组件 -->
+<view class="yin-yang-container">
+  <view class="symbol-wrapper {{active ? 'spinning' : ''}}">
+    <!-- 阳面 -->
+    <view class="yin-yang-symbol yang">
+      <view class="yang-fill">
+        <view class="dot yang-dot"></view>
+      </view>
+    </view>
+    <!-- 阴面 -->
+    <view class="yin-yang-symbol yin">
+      <view class="yin-fill">
+        <view class="dot yin-dot"></view>
+      </view>
+    </view>
+  </view>
+  <text class="spin-hint {{active ? 'show' : ''}}">☯️ 缓缓旋转 ☯️</text>
+</view>

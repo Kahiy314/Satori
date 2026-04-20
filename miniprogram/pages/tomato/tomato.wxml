@@ -6,91 +6,96 @@
     <text class="back-text">返回</text>
   </view>
 
-  <!-- 专注模式 -->
-  <view class="focus-mode {{mode === 'focus' ? 'active' : ''}}">
-    <!-- 焚香动画区域 -->
-    <view class="incense-animation">
-      <view class="incense-burner">
-        <text class="burner-icon">🏺</text>
-      </view>
-      <view class="incense-stick">
-        <view class="stick-progress">
-          <view class="progress-fill" style="width: {{progress}}%"></view>
-        </view>
-        <text class="progress-text">{{progress}}%</text>
-      </view>
-      <view class="smoke-effect">
-        <text class="smoke-text">～～香炉青烟～～</text>
-      </view>
+  <!-- ========== 专注模式 ========== -->
+  <view class="mode-container focus-mode {{mode === 'work' ? 'active' : ''}}">
+    <!-- 焚香动画 -->
+    <view class="animation-section">
+      <incense-burner
+        progress="{{progress}}"
+        active="{{mode === 'work'}}"
+        totalSeconds="{{totalFocusMinutes * 60}}"
+      />
     </view>
 
     <!-- 任务信息 -->
-    <view class="task-info">
-      <view class="task-name">任务：{{taskName}}</view>
-      <view class="tomato-cycle">专注周期：第 {{currentTomato}}/{{totalTomatoes}} 个番茄</view>
-      <view class="time-remaining">剩余时间：{{remainingTime}}</view>
+    <view class="task-info-block">
+      <view class="task-name-row">
+        <text class="task-icon-label">📖</text>
+        <text class="task-name-text">任务：{{taskName}}</text>
+      </view>
+      <view class="tomato-cycle">
+        专注周期：第 {{currentTomato}}/{{totalTomatoes}} 个番茄
+      </view>
+      <view class="time-display">
+        <text class="time-value">{{remainingTimeStr}}</text>
+      </view>
     </view>
 
     <!-- 控制按钮 -->
     <view class="control-buttons">
-      <button class="control-btn pause" bindtap="togglePause">
-        <text class="btn-icon">{{isPaused ? '▶' : '⏸️'}}</text>
-        <text class="btn-text">{{isPaused ? '继续' : '暂停'}}</text>
-      </button>
-      <button class="control-btn end" bindtap="endSession">
-        <text class="btn-icon">⏹️</text>
-        <text class="btn-text">结束</text>
-      </button>
-      <button class="control-btn sound" bindtap="toggleWhiteNoise">
-        <text class="btn-icon">🎵</text>
-        <text class="btn-text">音效</text>
-      </button>
+      <view class="ctrl-btn {{isPaused ? 'resume' : 'pause'}}" bindtap="togglePause">
+        <text class="ctrl-icon">{{isPaused ? '▶' : '⏸'}}</text>
+        <text class="ctrl-text">{{isPaused ? '继续' : '暂停'}}</text>
+      </view>
+      <view class="ctrl-btn end" bindtap="confirmEnd">
+        <text class="ctrl-icon">⏹</text>
+        <text class="ctrl-text">结束</text>
+      </view>
+      <view class="ctrl-btn sound {{isSoundOn ? 'on' : ''}}" bindtap="toggleSound">
+        <text class="ctrl-icon">🎵</text>
+        <text class="ctrl-text">音效</text>
+      </view>
     </view>
 
     <!-- 白噪音信息 -->
-    <view class="white-noise-info">
+    <view class="noise-info">
       <text class="noise-label">当前白噪音：</text>
-      <text class="noise-type">{{whiteNoise === '无' ? '无' : '🌧️ ' + whiteNoise}}</text>
+      <text class="noise-value">{{whiteNoiseLabel}}</text>
     </view>
   </view>
 
-  <!-- 休息模式 -->
-  <view class="rest-mode {{mode === 'rest' ? 'active' : ''}}">
-    <!-- 阴阳鱼动画区域 -->
-    <view class="yin-yang-animation">
-      <view class="yin-yang-symbol">
-        <text class="symbol-icon">☯️</text>
-      </view>
-      <view class="rotation-text">缓缓旋转 ☯️</view>
+  <!-- ========== 休息模式 ========== -->
+  <view class="mode-container rest-mode {{mode === 'rest' ? 'active' : ''}}">
+    <!-- 阴阳鱼动画 -->
+    <view class="animation-section">
+      <yin-yang active="{{mode === 'rest'}}" />
     </view>
 
     <!-- 休息信息 -->
-    <view class="rest-info">
+    <view class="task-info-block">
       <view class="rest-title">休息时间</view>
-      <view class="time-remaining">剩余时间：{{remainingTime}}</view>
+      <view class="time-display">
+        <text class="time-value">{{remainingTimeStr}}</text>
+      </view>
     </view>
 
     <!-- 控制按钮 -->
     <view class="control-buttons">
-      <button class="control-btn pause" bindtap="togglePause">
-        <text class="btn-icon">{{isPaused ? '▶' : '⏸️'}}</text>
-        <text class="btn-text">{{isPaused ? '继续' : '暂停'}}</text>
-      </button>
-      <button class="control-btn skip" bindtap="endSession">
-        <text class="btn-icon">⏹️</text>
-        <text class="btn-text">跳过</text>
-      </button>
-      <button class="control-btn sound" bindtap="toggleWhiteNoise">
-        <text class="btn-icon">🎵</text>
-        <text class="btn-text">音效</text>
-      </button>
+      <view class="ctrl-btn {{isPaused ? 'resume' : 'pause'}}" bindtap="togglePause">
+        <text class="ctrl-icon">{{isPaused ? '▶' : '⏸'}}</text>
+        <text class="ctrl-text">{{isPaused ? '继续' : '暂停'}}</text>
+      </view>
+      <view class="ctrl-btn skip" bindtap="skipRest">
+        <text class="ctrl-icon">⏭</text>
+        <text class="ctrl-text">跳过</text>
+      </view>
+      <view class="ctrl-btn sound {{isSoundOn ? 'on' : ''}}" bindtap="toggleSound">
+        <text class="ctrl-icon">🎵</text>
+        <text class="ctrl-text">音效</text>
+      </view>
     </view>
   </view>
 
-  <!-- 模式切换按钮（仅用于演示） -->
-  <view class="mode-switch-demo">
-    <button class="switch-btn" bindtap="switchMode">
-      <text class="switch-text">切换模式（演示用）</text>
-    </button>
+  <!-- ========== 完成任务 ========== -->
+  <view class="mode-container complete-mode {{mode === 'complete' ? 'active' : ''}}">
+    <view class="complete-section">
+      <text class="complete-icon">🎉</text>
+      <view class="complete-title">恭喜完成！</view>
+      <view class="complete-subtitle">已完成 {{totalTomatoes}} 个番茄</view>
+      <view class="complete-stats">
+        <text>累计专注 {{totalFocusMinutes}} 分钟</text>
+      </view>
+      <view class="complete-btn" bindtap="goBack">返回任务页</view>
+    </view>
   </view>
 </view>
