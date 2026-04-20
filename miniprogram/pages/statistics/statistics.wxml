@@ -1,0 +1,91 @@
+<!-- 统计页面 -->
+<view class="statistics-page">
+  <!-- 数据看板 -->
+  <view class="stats-board">
+    <view class="board-title">📊 数据看板</view>
+    
+    <!-- 第一行统计卡片 -->
+    <view class="stats-row">
+      <view class="stat-card">
+        <view class="stat-value">{{statsData.todayFocus}}</view>
+        <view class="stat-label">今日专注</view>
+        <view class="stat-unit">分钟</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{statsData.todayTasks}}</view>
+        <view class="stat-label">完成任务</view>
+        <view class="stat-unit">个</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{statsData.weekFocus}}</view>
+        <view class="stat-label">本周专注</view>
+        <view class="stat-unit">分钟</view>
+      </view>
+    </view>
+    
+    <!-- 第二行统计卡片 -->
+    <view class="stats-row">
+      <view class="stat-card">
+        <view class="stat-value">{{statsData.weekTasks}}</view>
+        <view class="stat-label">完成任务</view>
+        <view class="stat-unit">个</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{statsData.totalFocus}}</view>
+        <view class="stat-label">总专注</view>
+        <view class="stat-unit">分钟</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{statsData.totalTasks}}</view>
+        <view class="stat-label">总任务</view>
+        <view class="stat-unit">个</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 专注趋势图 -->
+  <view class="trend-section">
+    <view class="section-title">📈 近7天专注趋势</view>
+    <view class="trend-chart">
+      <view class="chart-y-axis">
+        <text class="y-label">{{getMaxValue()}}</text>
+        <text class="y-label">{{Math.round(getMaxValue() * 0.75)}}</text>
+        <text class="y-label">{{Math.round(getMaxValue() * 0.5)}}</text>
+        <text class="y-label">{{Math.round(getMaxValue() * 0.25)}}</text>
+        <text class="y-label">0</text>
+      </view>
+      <view class="chart-content">
+        <view class="chart-grid">
+          <view class="grid-line" wx:for="{{5}}" wx:key="index"></view>
+        </view>
+        <view class="data-points">
+          <view 
+            class="data-point" 
+            wx:for="{{trendData}}" 
+            wx:key="day"
+            style="left: {{(index * 100 / 6)}}%; bottom: {{(item.value / getMaxValue()) * 100}}%"
+          >
+            <text class="point-value">{{item.value}}</text>
+            <view class="point-dot"></view>
+          </view>
+        </view>
+        <view class="chart-line"></view>
+      </view>
+      <view class="chart-x-axis">
+        <text class="x-label" wx:for="{{trendData}}" wx:key="day">{{item.day}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI学习总结 -->
+  <view class="ai-section">
+    <view class="section-title">🤖 AI学习总结</view>
+    <view class="ai-card">
+      <view class="ai-content">{{aiSummary.content}}</view>
+      <view class="ai-footer">
+        <text class="update-time">更新于：{{aiSummary.lastUpdate}}</text>
+        <button class="refresh-btn" bindtap="refreshAI">🔄 刷新</button>
+      </view>
+    </view>
+  </view>
+</view>

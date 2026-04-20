@@ -1,0 +1,86 @@
+<!-- 日历页面 -->
+<view class="calendar-page">
+  <!-- 月份导航 -->
+  <view class="month-header">
+    <view class="nav-btn prev" bindtap="prevMonth">
+      <text class="icon">‹</text>
+    </view>
+    <view class="month-title">
+      <text class="year">{{currentYear}}年</text>
+      <text class="month">{{currentMonth}}月</text>
+    </view>
+    <view class="nav-btn next" bindtap="nextMonth">
+      <text class="icon">›</text>
+    </view>
+  </view>
+
+  <!-- 星期标题 -->
+  <view class="week-header">
+    <view class="week-day" wx:for="{{['周一','周二','周三','周四','周五','周六','周日']}}" wx:key="*this">
+      <text>{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 日历网格 -->
+  <view class="calendar-grid">
+    <view 
+      class="calendar-day {{item.status}} {{item.isToday ? 'today' : ''}}"
+      wx:for="{{calendarDays}}" 
+      wx:key="index"
+    >
+      <text class="day-number">{{item.day}}</text>
+      <view class="status-dot {{item.status}}"></view>
+    </view>
+  </view>
+
+  <!-- 今日任务完成情况 -->
+  <view class="today-summary">
+    <view class="summary-title">今日任务完成情况：</view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(todayTasks.completed / todayTasks.total) * 100}}%"></view>
+    </view>
+    <view class="progress-text">
+      ✅ 已完成 {{todayTasks.completed}}/{{todayTasks.total}} 个任务
+    </view>
+  </view>
+
+  <!-- 打卡按钮 -->
+  <view class="checkin-section">
+    <button 
+      class="checkin-btn {{checkInStatus ? 'checked' : ''}}" 
+      bindtap="handleCheckIn"
+      disabled="{{checkInStatus}}"
+    >
+      <text class="btn-icon">📅</text>
+      <text class="btn-text">{{checkInStatus ? '今日已打卡' : '今日打卡'}}</text>
+    </button>
+  </view>
+
+  <!-- 状态说明 -->
+  <view class="status-legend">
+    <view class="legend-item">
+      <view class="legend-dot unchecked"></view>
+      <text class="legend-text">未打卡</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-dot checked"></view>
+      <text class="legend-text">已打卡</text>
+    </view>
+  </view>
+
+  <!-- 打卡成功弹窗 -->
+  <view class="quote-modal {{showQuoteModal ? 'show' : ''}}">
+    <view class="modal-content">
+      <view class="bookmark-decoration">🎋 木质书签样式 🎋</view>
+      <view class="quote-card">
+        <view class="quote-success">✨ 打卡成功！ ✨</view>
+        <view class="quote-text">"{{currentQuote.text}}"</view>
+        <view class="quote-source">——{{currentQuote.source}}</view>
+      </view>
+      <button class="confirm-btn" bindtap="closeQuoteModal">确定</button>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="modal-mask {{showQuoteModal ? 'show' : ''}}" bindtap="closeQuoteModal"></view>
+</view>

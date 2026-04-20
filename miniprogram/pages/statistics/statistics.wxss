@@ -1,0 +1,228 @@
+/* 统计页面样式 */
+.statistics-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  padding: 30rpx;
+}
+
+/* 数据看板 */
+.stats-board {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.board-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.stat-card {
+  flex: 1;
+  background: #f8f4e9;
+  border-radius: 15rpx;
+  padding: 25rpx 15rpx;
+  text-align: center;
+  margin: 0 10rpx;
+  border: 1px solid #e8e0d0;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #d4a373;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #8c7b6c;
+  margin-bottom: 5rpx;
+}
+
+.stat-unit {
+  font-size: 20rpx;
+  color: #a1887f;
+}
+
+/* 趋势图区域 */
+.trend-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 30rpx;
+}
+
+.trend-chart {
+  display: flex;
+  height: 300rpx;
+  position: relative;
+}
+
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 80rpx;
+  padding-right: 20rpx;
+}
+
+.y-label {
+  font-size: 20rpx;
+  color: #8c7b6c;
+  text-align: right;
+}
+
+.chart-content {
+  flex: 1;
+  position: relative;
+  border-left: 1px solid #e8e0d0;
+  border-bottom: 1px solid #e8e0d0;
+}
+
+.chart-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.grid-line {
+  height: 1px;
+  background: #f0f0f0;
+  margin-bottom: 75rpx;
+}
+
+.data-points {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.data-point {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.point-value {
+  font-size: 20rpx;
+  color: #d4a373;
+  margin-bottom: 5rpx;
+}
+
+.point-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background: #d4a373;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #d4a373;
+}
+
+.chart-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, 
+    transparent 0%, 
+    rgba(212, 163, 115, 0.3) 16.67%, 
+    rgba(212, 163, 115, 0.5) 33.33%, 
+    rgba(212, 163, 115, 0.7) 50%, 
+    rgba(212, 163, 115, 0.5) 66.67%, 
+    rgba(212, 163, 115, 0.3) 83.33%, 
+    transparent 100%
+  );
+  clip-path: polygon(
+    0% 100%,
+    16.67% 20%,
+    33.33% 40%,
+    50% 60%,
+    66.67% 50%,
+    83.33% 30%,
+    100% 40%,
+    100% 100%
+  );
+}
+
+.chart-x-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  padding-left: 80rpx;
+}
+
+.x-label {
+  font-size: 20rpx;
+  color: #8c7b6c;
+  flex: 1;
+  text-align: center;
+}
+
+/* AI学习总结 */
+.ai-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.ai-card {
+  background: #f8f4e9;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  border: 1px solid #e8e0d0;
+}
+
+.ai-content {
+  font-size: 26rpx;
+  color: #5d4037;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+
+.ai-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.update-time {
+  font-size: 22rpx;
+  color: #8c7b6c;
+}
+
+.refresh-btn {
+  background: #d4a373;
+  color: white;
+  border: none;
+  padding: 12rpx 25rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}

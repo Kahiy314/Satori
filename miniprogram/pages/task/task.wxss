@@ -1,0 +1,297 @@
+/* 任务页面样式 */
+.task-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  position: relative;
+}
+
+/* 顶部栏样式 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e8e0d0;
+  box-shadow: 0 2rpx 10rpx rgba(140, 123, 108, 0.1);
+}
+
+.header-left .list-filter {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  background: #f8f4e9;
+  border: 1px solid #d4a373;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  color: #8c7b6c;
+}
+
+.header-left .icon {
+  margin-right: 8rpx;
+  font-size: 32rpx;
+}
+
+.header-center .title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+  letter-spacing: 2rpx;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-right .icon {
+  margin-left: 20rpx;
+  font-size: 32rpx;
+  color: #8c7b6c;
+  padding: 12rpx;
+}
+
+/* 任务列表样式 */
+.task-list {
+  height: calc(100vh - 300rpx);
+  padding: 30rpx;
+}
+
+.task-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.task-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(140, 123, 108, 0.15);
+  border: 1px solid #e8e0d0;
+  transition: all 0.3s ease;
+}
+
+.task-card:active {
+  transform: translateY(-2rpx);
+  box-shadow: 0 6rpx 25rpx rgba(140, 123, 108, 0.2);
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.task-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.task-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #5d4037;
+}
+
+.task-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15rpx;
+  font-size: 26rpx;
+  color: #8c7b6c;
+}
+
+.list-name {
+  margin-right: 20rpx;
+}
+
+.priority-tag {
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+}
+
+.priority-tag.high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.priority-tag.medium {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.priority-tag.low {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 26rpx;
+  color: #8c7b6c;
+}
+
+.tomato-count {
+  margin-right: 15rpx;
+}
+
+.task-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #d4a373 0%, #b08c5a 100%);
+  color: white;
+  border: none;
+  padding: 16rpx 40rpx;
+  border-radius: 25rpx;
+  font-size: 28rpx;
+  box-shadow: 0 4rpx 15rpx rgba(212, 163, 115, 0.3);
+}
+
+.start-btn:active {
+  transform: scale(0.98);
+}
+
+/* 创建任务按钮 */
+.create-task-btn {
+  position: fixed;
+  bottom: 40rpx;
+  right: 40rpx;
+  background: linear-gradient(135deg, #d4a373 0%, #b08c5a 100%);
+  color: white;
+  padding: 20rpx 30rpx;
+  border-radius: 50rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 6rpx 20rpx rgba(212, 163, 115, 0.4);
+  z-index: 100;
+}
+
+.plus-icon {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.btn-text {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+/* 清单管理面板 */
+.list-panel {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 70%;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  transition: left 0.3s ease;
+  box-shadow: 4rpx 0 30rpx rgba(0, 0, 0, 0.1);
+}
+
+.list-panel.show {
+  left: 0;
+}
+
+.panel-header {
+  padding: 60rpx 30rpx 30rpx;
+  border-bottom: 1px solid #e8e0d0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #5d4037;
+}
+
+.add-list-btn {
+  font-size: 26rpx;
+  color: #d4a373;
+  padding: 10rpx 20rpx;
+}
+
+.list-items {
+  padding: 30rpx;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.list-item.active {
+  background: #f8f4e9;
+  margin: 0 -30rpx;
+  padding: 20rpx 30rpx;
+}
+
+.list-checkbox, .list-icon {
+  font-size: 32rpx;
+  margin-right: 20rpx;
+}
+
+.list-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #5d4037;
+}
+
+.list-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.edit-icon, .delete-icon {
+  font-size: 28rpx;
+  padding: 8rpx;
+}
+
+.panel-footer {
+  position: absolute;
+  bottom: 40rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.close-btn {
+  background: #8c7b6c;
+  color: white;
+  border: none;
+  padding: 20rpx 60rpx;
+  border-radius: 25rpx;
+  font-size: 28rpx;
+}
+
+/* 遮罩层 */
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mask.show {
+  opacity: 1;
+  visibility: visible;
+}

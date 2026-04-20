@@ -1,0 +1,71 @@
+Loading project all files...
+Loading project all files success
+Loading project all files...
+Loading project all files success
+Loading project all files...
+Loading project all files success
+编译 app.json
+编译 ext.json
+编译 4 个页面json文件
+Loading project all files...
+Loading project all files success
+编译 app.json
+编译 ext.json
+编译 4 个页面json文件
+analyzing codes...
+ignoring files: miniprogram/pages/index/index.json,miniprogram/pages/index/index.js,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.js,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.js,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.js
+analyzing codes success
+Ignored by code analyzer: miniprogram/pages/index/index.json,miniprogram/pages/index/index.ts,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.ts,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.ts,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.ts
+analyzing codes...
+ignoring files: miniprogram/pages/index/index.json,miniprogram/pages/index/index.js,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.js,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.js,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.js
+analyzing codes success
+Ignored by code analyzer: miniprogram/pages/index/index.json,miniprogram/pages/index/index.ts,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.ts,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.ts,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.ts
+getDevCodeByFileList-miniProgram
+编译 pages/calendar/calendar.wxml
+编译 pages/calendar/calendar.wxml
+编译 pages/setting/setting.wxml
+编译 pages/setting/setting.wxml
+编译 pages/statistics/statistics.wxml
+编译 pages/statistics/statistics.wxml
+编译 pages/task/task.wxml
+编译 pages/task/task.wxml
+pages/calendar/calendar.wxml
+pages/setting/setting.wxml
+pages/statistics/statistics.wxml
+pages/task/task.wxml
+pages/calendar/calendar.wxml
+pages/setting/setting.wxml
+pages/statistics/statistics.wxml
+pages/task/task.wxml
+analyzing codes...
+ignoring files: miniprogram/pages/index/index.json,miniprogram/pages/index/index.js,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.js,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.js,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.js
+analyzing codes success
+Ignored by code analyzer: miniprogram/pages/index/index.json,miniprogram/pages/index/index.ts,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.ts,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.ts,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.ts
+getDevCodeByFileList-miniProgram
+编译 app.wxss
+编译 app.wxss
+编译 pages/calendar/calendar.wxss
+编译 pages/calendar/calendar.wxss
+编译 pages/setting/setting.wxss
+编译 pages/setting/setting.wxss
+编译 pages/statistics/statistics.wxss
+编译 pages/statistics/statistics.wxss
+编译 pages/task/task.wxss
+编译 pages/task/task.wxss
+app.wxss
+pages/calendar/calendar.wxss
+pages/setting/setting.wxss
+pages/statistics/statistics.wxss
+pages/task/task.wxss
+app.wxss
+pages/calendar/calendar.wxss
+pages/setting/setting.wxss
+pages/statistics/statistics.wxss
+pages/task/task.wxss
+编译 app.json
+编译 ext.json
+编译 4 个页面json文件
+analyzing codes...
+ignoring files: miniprogram/pages/index/index.json,miniprogram/pages/index/index.js,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.js,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.js,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.js
+analyzing codes success
+Ignored by code analyzer: miniprogram/pages/index/index.json,miniprogram/pages/index/index.ts,miniprogram/pages/index/index.wxml,miniprogram/pages/index/index.wxss,miniprogram/pages/logs/logs.json,miniprogram/pages/logs/logs.ts,miniprogram/pages/logs/logs.wxml,miniprogram/pages/logs/logs.wxss,miniprogram/pages/tomato/tomato.json,miniprogram/pages/tomato/tomato.ts,miniprogram/pages/tomato/tomato.wxml,miniprogram/pages/tomato/tomato.wxss,miniprogram/utils/util.ts

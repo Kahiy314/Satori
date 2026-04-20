@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/task/task",
+    "pages/calendar/calendar",
+    "pages/statistics/statistics",
+    "pages/setting/setting"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "香韵番茄钟",
+    "navigationBarBackgroundColor": "#f8f4e9"
+  },
+  "tabBar": {
+    "color": "#8c7b6c",
+    "selectedColor": "#d4a373",
+    "backgroundColor": "#f8f4e9",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/task/task",
+        "text": "📋 任务",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "📅 日历",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/statistics/statistics",
+        "text": "📊 统计",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/setting/setting",
+        "text": "⚙️ 设置",
+        "iconPath": "",
+        "selectedIconPath": ""
+      }
+    ]
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents"
+}

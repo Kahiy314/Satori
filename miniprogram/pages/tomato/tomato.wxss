@@ -1,0 +1,241 @@
+/* 番茄计时页面样式 */
+.tomato-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  padding: 30rpx;
+  position: relative;
+}
+
+/* 返回按钮 */
+.back-btn {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 30rpx;
+}
+
+.back-icon {
+  font-size: 32rpx;
+  color: #8c7b6c;
+  margin-right: 10rpx;
+}
+
+.back-text {
+  font-size: 28rpx;
+  color: #8c7b6c;
+}
+
+/* 模式容器 */
+.focus-mode, .rest-mode {
+  display: none;
+}
+
+.focus-mode.active, .rest-mode.active {
+  display: block;
+}
+
+/* 焚香动画区域 */
+.incense-animation {
+  text-align: center;
+  margin: 60rpx 0;
+}
+
+.incense-burner {
+  margin-bottom: 40rpx;
+}
+
+.burner-icon {
+  font-size: 120rpx;
+}
+
+.incense-stick {
+  margin-bottom: 30rpx;
+}
+
+.stick-progress {
+  width: 300rpx;
+  height: 8rpx;
+  background: #e8e0d0;
+  border-radius: 4rpx;
+  margin: 0 auto 15rpx;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4a373, #b08c5a);
+  border-radius: 4rpx;
+  transition: width 1s ease;
+}
+
+.progress-text {
+  font-size: 24rpx;
+  color: #8c7b6c;
+}
+
+.smoke-effect {
+  margin-top: 20rpx;
+}
+
+.smoke-text {
+  font-size: 26rpx;
+  color: #a1887f;
+  font-style: italic;
+}
+
+/* 任务信息 */
+.task-info {
+  text-align: center;
+  margin: 50rpx 0;
+}
+
+.task-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 20rpx;
+}
+
+.tomato-cycle, .time-remaining {
+  font-size: 28rpx;
+  color: #8c7b6c;
+  margin-bottom: 10rpx;
+}
+
+/* 控制按钮 */
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 30rpx;
+  margin: 50rpx 0;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e8e0d0;
+  border-radius: 25rpx;
+  padding: 20rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+  transition: all 0.3s ease;
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(140, 123, 108, 0.2);
+}
+
+.btn-icon {
+  font-size: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.btn-text {
+  font-size: 24rpx;
+  color: #5d4037;
+}
+
+.control-btn.pause {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  border-color: #4caf50;
+}
+
+.control-btn.pause .btn-text {
+  color: white;
+}
+
+.control-btn.end, .control-btn.skip {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  border-color: #f44336;
+}
+
+.control-btn.end .btn-text, .control-btn.skip .btn-text {
+  color: white;
+}
+
+.control-btn.sound {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  border-color: #2196f3;
+}
+
+.control-btn.sound .btn-text {
+  color: white;
+}
+
+/* 白噪音信息 */
+.white-noise-info {
+  text-align: center;
+  margin-top: 30rpx;
+  font-size: 26rpx;
+  color: #8c7b6c;
+}
+
+.noise-type {
+  color: #d4a373;
+  font-weight: bold;
+}
+
+/* 阴阳鱼动画区域 */
+.yin-yang-animation {
+  text-align: center;
+  margin: 80rpx 0 60rpx;
+}
+
+.yin-yang-symbol {
+  margin-bottom: 30rpx;
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.symbol-icon {
+  font-size: 150rpx;
+}
+
+.rotation-text {
+  font-size: 26rpx;
+  color: #8c7b6c;
+  font-style: italic;
+}
+
+/* 休息信息 */
+.rest-info {
+  text-align: center;
+  margin: 50rpx 0;
+}
+
+.rest-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 20rpx;
+}
+
+/* 模式切换演示按钮 */
+.mode-switch-demo {
+  position: fixed;
+  bottom: 40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.switch-btn {
+  background: #8c7b6c;
+  color: white;
+  border: none;
+  padding: 15rpx 30rpx;
+  border-radius: 25rpx;
+  font-size: 24rpx;
+  opacity: 0.7;
+}
+
+.switch-text {
+  font-size: 22rpx;
+}

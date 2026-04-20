@@ -1,0 +1,300 @@
+/* 日历页面样式 */
+.calendar-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  padding: 30rpx;
+}
+
+/* 月份导航 */
+.month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20rpx 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.nav-btn {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f4e9;
+  border: 1px solid #d4a373;
+  border-radius: 50%;
+  font-size: 40rpx;
+  color: #8c7b6c;
+}
+
+.month-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.year {
+  font-size: 24rpx;
+  color: #8c7b6c;
+  margin-bottom: 5rpx;
+}
+
+.month {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+}
+
+/* 星期标题 */
+.week-header {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.week-day {
+  flex: 1;
+  text-align: center;
+  font-size: 26rpx;
+  color: #8c7b6c;
+  padding: 15rpx 0;
+}
+
+/* 日历网格 */
+.calendar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+  margin-bottom: 40rpx;
+}
+
+.calendar-day {
+  width: calc(100% / 7);
+  height: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.day-number {
+  font-size: 28rpx;
+  color: #5d4037;
+  margin-bottom: 8rpx;
+}
+
+.status-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+.status-dot.checked {
+  background: #4caf50;
+}
+
+.status-dot.unchecked {
+  background: #e0e0e0;
+}
+
+.calendar-day.today .day-number {
+  background: #d4a373;
+  color: white;
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* 今日任务总结 */
+.today-summary {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.summary-title {
+  font-size: 28rpx;
+  color: #5d4037;
+  margin-bottom: 20rpx;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12rpx;
+  background: #e8e0d0;
+  border-radius: 6rpx;
+  margin-bottom: 15rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4a373, #b08c5a);
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 26rpx;
+  color: #8c7b6c;
+}
+
+/* 打卡按钮 */
+.checkin-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.checkin-btn {
+  background: linear-gradient(135deg, #d4a373 0%, #b08c5a 100%);
+  color: white;
+  border: none;
+  padding: 25rpx 60rpx;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 6rpx 20rpx rgba(212, 163, 115, 0.4);
+}
+
+.checkin-btn.checked {
+  background: #8c7b6c;
+  box-shadow: none;
+}
+
+.btn-icon {
+  margin-right: 15rpx;
+  font-size: 36rpx;
+}
+
+/* 状态说明 */
+.status-legend {
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #8c7b6c;
+}
+
+.legend-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  margin-right: 10rpx;
+}
+
+.legend-dot.checked {
+  background: #4caf50;
+}
+
+.legend-dot.unchecked {
+  background: #e0e0e0;
+}
+
+/* 打卡成功弹窗 */
+.quote-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.quote-modal.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 30rpx;
+  padding: 40rpx;
+  text-align: center;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+  border: 2px solid #d4a373;
+  min-width: 500rpx;
+}
+
+.bookmark-decoration {
+  font-size: 24rpx;
+  color: #8c7b6c;
+  margin-bottom: 20rpx;
+}
+
+.quote-card {
+  background: #f8f4e9;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin: 20rpx 0;
+  border: 1px solid #e8e0d0;
+}
+
+.quote-success {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #d4a373;
+  margin-bottom: 20rpx;
+}
+
+.quote-text {
+  font-size: 28rpx;
+  color: #5d4037;
+  font-style: italic;
+  margin-bottom: 10rpx;
+}
+
+.quote-source {
+  font-size: 24rpx;
+  color: #8c7b6c;
+}
+
+.confirm-btn {
+  background: #d4a373;
+  color: white;
+  border: none;
+  padding: 20rpx 60rpx;
+  border-radius: 25rpx;
+  font-size: 28rpx;
+  margin-top: 20rpx;
+}
+
+/* 遮罩层 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-mask.show {
+  opacity: 1;
+  visibility: visible;
+}

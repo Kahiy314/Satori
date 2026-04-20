@@ -1,0 +1,92 @@
+<!-- 任务页面 -->
+<view class="task-page">
+  <!-- 顶部栏 -->
+  <view class="header">
+    <view class="header-left">
+      <view class="list-filter" bindtap="toggleListPanel">
+        <text class="icon">≡</text>
+        <text class="filter-text">{{currentFilter === 'all' ? '全部任务' : currentFilter}}</text>
+      </view>
+    </view>
+    <view class="header-center">
+      <text class="title">今日待办</text>
+    </view>
+    <view class="header-right">
+      <text class="icon search-icon">🔍</text>
+      <text class="icon sort-icon">排序</text>
+    </view>
+  </view>
+
+  <!-- 任务列表 -->
+  <scroll-view class="task-list" scroll-y>
+    <view class="task-cards">
+      <view class="task-card" wx:for="{{tasks}}" wx:key="id" data-id="{{item.id}}" bindtap="startTask">
+        <view class="task-header">
+          <text class="task-icon">{{item.priority === 'high' ? '📘' : item.priority === 'medium' ? '📝' : '🎨'}}</text>
+          <text class="task-name">{{item.name}}</text>
+        </view>
+        <view class="task-info">
+          <text class="list-name">清单：{{item.listName}}</text>
+          <text class="priority-tag {{item.priority}}">{{item.priority === 'high' ? '高优先级' : item.priority === 'medium' ? '中优先级' : '低优先级'}}</text>
+        </view>
+        <view class="task-progress">
+          <text class="tomato-count">🍅 {{item.completedTomatoes}}/{{item.tomatoCount}} 个番茄</text>
+          <text class="focus-time">· {{item.focusMinutes}}分钟</text>
+        </view>
+        <view class="task-actions">
+          <button class="start-btn">▶ 开始</button>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部创建按钮 -->
+  <view class="create-task-btn" bindtap="createTask">
+    <text class="plus-icon">➕</text>
+    <text class="btn-text">创建任务</text>
+  </view>
+
+  <!-- 清单管理面板 -->
+  <view class="list-panel {{showListPanel ? 'show' : ''}}">
+    <view class="panel-header">
+      <text class="panel-title">我的清单</text>
+      <text class="add-list-btn">➕ 新建</text>
+    </view>
+    <view class="list-items">
+      <view class="list-item active">
+        <text class="list-checkbox">☑️</text>
+        <text class="list-name">全部任务 ({{tasks.length}})</text>
+      </view>
+      <view class="list-item">
+        <text class="list-icon">📘</text>
+        <text class="list-name">四书五经 (2)</text>
+        <view class="list-actions">
+          <text class="edit-icon">✏️</text>
+          <text class="delete-icon">🗑️</text>
+        </view>
+      </view>
+      <view class="list-item">
+        <text class="list-icon">📝</text>
+        <text class="list-name">学习任务 (1)</text>
+        <view class="list-actions">
+          <text class="edit-icon">✏️</text>
+          <text class="delete-icon">🗑️</text>
+        </view>
+      </view>
+      <view class="list-item">
+        <text class="list-icon">🎨</text>
+        <text class="list-name">兴趣爱好 (1)</text>
+        <view class="list-actions">
+          <text class="edit-icon">✏️</text>
+          <text class="delete-icon">🗑️</text>
+        </view>
+      </view>
+    </view>
+    <view class="panel-footer">
+      <button class="close-btn" bindtap="toggleListPanel">关闭</button>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="mask {{showListPanel ? 'show' : ''}}" bindtap="toggleListPanel"></view>
+</view>
