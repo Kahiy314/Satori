@@ -1,26 +1,38 @@
+import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+
+import '../../core/components/member_prompt.dart';
 import '../../core/theme/theme.dart';
-import '../../core/components/drawer_entry_button.dart';
+import '../../services/entitlement_controller.dart';
+import '../../core/components/section_page_header.dart';
 import '../../services/haptic_service.dart';
+import '../tea/tea_view.dart';
 import 'qin_view_model.dart';
 import 'components/music_player_view.dart';
 
 /// 抚琴主页面
 class QinView extends StatefulWidget {
-  final VoidCallback? onDrawerTap;
-  const QinView({super.key, this.onDrawerTap});
+  final QinViewModel? viewModel;
+  final EntitlementController? entitlementController;
+
+  const QinView({super.key, this.viewModel, this.entitlementController});
 
   @override
   State<QinView> createState() => _QinViewState();
 }
 
 class _QinViewState extends State<QinView> {
-  final _vm = QinViewModel();
+  late final QinViewModel _vm;
+  late final bool _ownsViewModel;
 
   @override
   void initState() {
     super.initState();
+    _ownsViewModel = widget.viewModel == null;
+    _vm = widget.viewModel ??
+        QinViewModel(entitlementController: widget.entitlementController);
     _vm.addListener(_onChanged);
   }
 
@@ -31,7 +43,9 @@ class _QinViewState extends State<QinView> {
   @override
   void dispose() {
     _vm.removeListener(_onChanged);
-    _vm.dispose();
+    if (_ownsViewModel) {
+      _vm.dispose();
+    }
     super.dispose();
   }
 
@@ -61,19 +75,7 @@ class _QinViewState extends State<QinView> {
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        SatoriTheme.spacingS, SatoriTheme.spacingM, SatoriTheme.spacingL, 0,
-      ),
-      child: Row(
-        children: [
-          if (widget.onDrawerTap != null)
-            DrawerEntryButton(onTap: widget.onDrawerTap!),
-          Text('抚琴', style: SatoriTypography.largeTitle),
-          const Spacer(),
-        ],
-      ),
-    );
+    return const SectionPageHeader(title: '抚琴');
   }
 
   Widget _buildTrackList() {
@@ -86,14 +88,24 @@ class _QinViewState extends State<QinView> {
 
   Widget _buildTrackRow(Track track) {
     final isCurrent = _vm.currentTrack?.id == track.id;
+    final isLocked = _vm.isTrackLocked(track);
 
     return GestureDetector(
       onTap: () {
-        if (track.isLocked) {
+        if (isLocked) {
           HapticService.instance.warningTap();
+          unawaited(
+            MemberPrompt.showHalfBlock(
+              context,
+              title: '${track.title} 属于${track.requiredTier.label}权益',
+              description:
+                  '当前曲目需要${track.requiredTier.label}或更高会员等级。若你正在调试资源，也可以在设置中开启开发者模式。',
+              onGoTea: _openTea,
+            ),
+          );
         } else {
           HapticService.instance.lightTap();
-          _vm.play(track);
+          unawaited(_vm.play(track));
         }
       },
       child: Container(
@@ -120,7 +132,7 @@ class _QinViewState extends State<QinView> {
                     : Colors.grey.withValues(alpha: 0.05),
               ),
               child: Center(
-                child: track.isLocked
+                child: isLocked
                     ? const Icon(Icons.lock, size: 14, color: Colors.grey)
                     : isCurrent && _vm.isPlaying
                         ? const _EqualizerBars()
@@ -137,20 +149,40 @@ class _QinViewState extends State<QinView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(track.title,
-                      style: SatoriTypography.body.copyWith(
-                          color: track.isLocked ? Colors.grey : null)),
+                      style: SatoriTypography.body
+                          .copyWith(color: isLocked ? Colors.grey : null)),
                   Text(track.artist,
-                      style:
-                          SatoriTypography.caption.copyWith(color: Colors.grey)),
+                      style: SatoriTypography.caption
+                          .copyWith(color: Colors.grey)),
                 ],
               ),
             ),
+            if (isLocked)
+              Padding(
+                padding: const EdgeInsets.only(right: SatoriTheme.spacingS),
+                child: Text(
+                  track.requiredTier.label,
+                  style: SatoriTypography.caption.copyWith(
+                    color: SatoriColors.teaAmber,
+                  ),
+                ),
+              ),
             Text(
               _vm.formatTime(track.duration),
               style: SatoriTypography.caption
                   .copyWith(color: Colors.grey.withValues(alpha: 0.5)),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _openTea() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TeaView(
+          entitlementController: widget.entitlementController,
         ),
       ),
     );

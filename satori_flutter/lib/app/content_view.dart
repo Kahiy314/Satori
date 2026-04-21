@@ -2,18 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/theme.dart';
 import '../features/incense/incense_view.dart';
-import '../features/rain/rain_view.dart';
-import '../features/qin/qin_view.dart';
+import '../features/rain/rain_qin_view.dart';
 import '../features/tea/tea_view.dart';
 import '../features/stats/stats_view.dart';
 import '../features/settings/settings_view.dart';
-import 'rice_paper_drawer.dart';
+import 'satori_tab_bar.dart';
 import 'providers.dart';
 
-/// 宣纸导航架构 — U1/U2
+enum _ContentPage {
+  incense,
+  rain,
+  stats,
+  settings,
+  tea,
+}
+
+/// 底部 Tab 导航
 ///
-/// 默认直达焚香主界面，左上角隐藏式入口展开宣纸目录。
-/// 不再使用底部 tab 导航。
+/// 底部四个图标 Tab：焚香、听雨、行迹、设置。
+/// 品茗被整合到设置页中。
 class ContentView extends StatefulWidget {
   const ContentView({super.key});
 
@@ -22,150 +29,160 @@ class ContentView extends StatefulWidget {
 }
 
 class _ContentViewState extends State<ContentView> {
-  SatoriPage _currentPage = SatoriPage.incense;
+  _ContentPage _currentPage = _ContentPage.incense;
+  SatoriTab _selectedTab = SatoriTab.incense;
   double _opacity = 1.0;
-  bool _drawerOpen = false;
 
-  void _openDrawer() {
-    setState(() => _drawerOpen = true);
-  }
-
-  void _closeDrawer() {
-    setState(() => _drawerOpen = false);
-  }
-
-  void _handlePageChange(SatoriPage page) {
+  void _handlePageChange(_ContentPage page) {
     if (page == _currentPage) {
-      _closeDrawer();
       return;
     }
 
-    _closeDrawer();
     // 渐出 → 切换 → 渐入
     setState(() => _opacity = 0);
     Future.delayed(SatoriTheme.animFast, () {
       if (!mounted) return;
       setState(() {
         _currentPage = page;
+        _selectedTab = _pageToTab(page);
         _opacity = 1;
       });
     });
   }
 
+  void _handleTabChange(SatoriTab tab) {
+    final page = _tabToPage(tab);
+    if (page == _currentPage) return;
+
+    setState(() => _opacity = 0);
+    Future.delayed(SatoriTheme.animFast, () {
+      if (!mounted) return;
+      setState(() {
+        _selectedTab = tab;
+        _currentPage = page;
+        _opacity = 1;
+      });
+    });
+  }
+
+  _ContentPage _tabToPage(SatoriTab tab) {
+    switch (tab) {
+      case SatoriTab.incense:
+        return _ContentPage.incense;
+      case SatoriTab.rain:
+        return _ContentPage.rain;
+      case SatoriTab.stats:
+        return _ContentPage.stats;
+      case SatoriTab.settings:
+        return _ContentPage.settings;
+    }
+  }
+
+  SatoriTab _pageToTab(_ContentPage page) {
+    switch (page) {
+      case _ContentPage.incense:
+        return SatoriTab.incense;
+      case _ContentPage.rain:
+        return SatoriTab.rain;
+      case _ContentPage.stats:
+        return SatoriTab.stats;
+      case _ContentPage.settings:
+        return SatoriTab.settings;
+      case _ContentPage.tea:
+        return SatoriTab.settings;
+    }
+  }
+
   /// 从设置页跳转品茗（双重露出 U6）
   void _goToTea() {
-    _handlePageChange(SatoriPage.tea);
+    _handlePageChange(_ContentPage.tea);
   }
 
   Widget _buildCurrentPage() {
     switch (_currentPage) {
-      case SatoriPage.incense:
-        return IncenseView(onDrawerTap: _openDrawer);
-      case SatoriPage.rain:
-        return RainView(onDrawerTap: _openDrawer);
-      case SatoriPage.qin:
-        return QinView(onDrawerTap: _openDrawer);
-      case SatoriPage.stats:
-        return _StatsPageWrapper(onDrawerTap: _openDrawer);
-      case SatoriPage.settings:
-        return _SettingsPageWrapper(
-            onDrawerTap: _openDrawer, onTeaTap: _goToTea);
-      case SatoriPage.tea:
-        return TeaView(onDrawerTap: _openDrawer);
+      case _ContentPage.incense:
+        return const IncenseView();
+      case _ContentPage.rain:
+        return const _RainQinPageWrapper();
+      case _ContentPage.stats:
+        return const _StatsPageWrapper();
+      case _ContentPage.settings:
+        return _SettingsPageWrapper(onTeaTap: _goToTea);
+      case _ContentPage.tea:
+        return const _TeaPageWrapper();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          // 当前功能页面
-          AnimatedOpacity(
-            opacity: _opacity,
-            duration: _opacity == 0
-                ? SatoriTheme.animFast
-                : const Duration(milliseconds: 200),
-            curve: _opacity == 0 ? Curves.easeOut : Curves.easeIn,
-            child: _buildCurrentPage(),
-          ),
-
-          // 宣纸抽屉
-          if (_drawerOpen)
-            AnimatedOpacity(
-              opacity: _drawerOpen ? 1.0 : 0.0,
-              duration: SatoriTheme.animNormal,
-              child: RicePaperDrawer(
-                currentPage: _currentPage,
-                onPageSelected: _handlePageChange,
-                onClose: _closeDrawer,
-              ),
+          Expanded(
+            child: AnimatedOpacity(
+              opacity: _opacity,
+              duration: _opacity == 0
+                  ? SatoriTheme.animFast
+                  : const Duration(milliseconds: 200),
+              curve: _opacity == 0 ? Curves.easeOut : Curves.easeIn,
+              child: _buildCurrentPage(),
             ),
+          ),
+          SatoriTabBar(
+            selectedTab: _selectedTab,
+            onTabChanged: _handleTabChange,
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
   }
 }
 
-/// 行迹页包装器 — 注入 aggregator 并添加左上角入口
+/// 行迹页包装器 — 注入 aggregator
 class _StatsPageWrapper extends ConsumerWidget {
-  final VoidCallback onDrawerTap;
-  const _StatsPageWrapper({required this.onDrawerTap});
+  const _StatsPageWrapper();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Stack(
-      children: [
-        StatsView(aggregator: ref.watch(statsAggregatorProvider)),
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 8,
-          left: SatoriTheme.spacingM,
-          child: _DrawerButton(onTap: onDrawerTap),
-        ),
-      ],
+    return StatsView(
+      aggregator: ref.watch(statsAggregatorProvider),
     );
   }
 }
 
-/// 设置页包装器 — 添加左上角入口
-class _SettingsPageWrapper extends StatelessWidget {
-  final VoidCallback onDrawerTap;
+class _RainQinPageWrapper extends ConsumerWidget {
+  const _RainQinPageWrapper();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return RainQinView(
+      entitlementController: ref.watch(entitlementControllerProvider),
+    );
+  }
+}
+
+/// 设置页包装器
+class _SettingsPageWrapper extends ConsumerWidget {
   final VoidCallback onTeaTap;
-  const _SettingsPageWrapper(
-      {required this.onDrawerTap, required this.onTeaTap});
+  const _SettingsPageWrapper({required this.onTeaTap});
 
   @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SettingsView(onTeaTap: onTeaTap),
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 8,
-          left: SatoriTheme.spacingM,
-          child: _DrawerButton(onTap: onDrawerTap),
-        ),
-      ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SettingsView(
+      onTeaTap: onTeaTap,
+      entitlementController: ref.watch(entitlementControllerProvider),
     );
   }
 }
 
-class _DrawerButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _DrawerButton({required this.onTap});
+class _TeaPageWrapper extends ConsumerWidget {
+  const _TeaPageWrapper();
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark
-        ? Colors.white.withValues(alpha: 0.4)
-        : SatoriColors.inkSmoke.withValues(alpha: 0.35);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(SatoriTheme.spacingS),
-        child: Icon(Icons.menu, size: 20, color: color),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return TeaView(
+      entitlementController: ref.watch(entitlementControllerProvider),
     );
   }
 }

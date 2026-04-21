@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/models/member_tier.dart';
 import '../../../core/theme/theme.dart';
-import '../tea_view_model.dart';
 
 /// 会员卡片
 class MembershipCardView extends StatelessWidget {
@@ -33,8 +33,8 @@ class MembershipCardView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(tier.label,
-                    style: SatoriTypography.title
-                        .copyWith(color: Colors.white)),
+                    style:
+                        SatoriTypography.title.copyWith(color: Colors.white)),
                 Text('会员',
                     style: SatoriTypography.caption
                         .copyWith(color: Colors.white.withValues(alpha: 0.7))),

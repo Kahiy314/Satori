@@ -1,0 +1,55 @@
+<svg width="220" height="120" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Incense Burner Light</title>
+  <desc>Figma-importable SVG rebuilt from the Flutter CustomPainter geometry.</desc>
+  <defs>
+    <linearGradient id="bodyGradient" x1="110" y1="21.6" x2="110" y2="110.4" gradientUnits="userSpaceOnUse">
+      <stop offset="20%" stop-color="#8BA89A"/>
+      <stop offset="90%" stop-color="#607B6C"/>
+    </linearGradient>
+    <filter id="bodyHighlightBlur" x="18" y="24" width="36" height="74" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <clipPath id="frontRimClip">
+      <rect x="0" y="15.6" width="220" height="104.4"/>
+    </clipPath>
+  </defs>
+
+  <g id="incense-burner-light">
+    <path
+      id="burner-body"
+      d="M30.8 21.6C38.5 36 8.8 36 8.8 62.4C8.8 86.4 56.5 96 60.5 110.4H159.5C163.5 96 211.2 86.4 211.2 62.4C211.2 36 181.5 36 189.2 21.6H30.8Z"
+      fill="url(#bodyGradient)"
+    />
+
+    <path
+      id="body-highlight"
+      d="M33.088 40Q30.088 62.4 39.088 82.4"
+      fill="none"
+      stroke="white"
+      stroke-opacity="0.2"
+      stroke-width="12.144"
+      stroke-linecap="round"
+      filter="url(#bodyHighlightBlur)"
+    />
+
+    <ellipse id="rim-outer" cx="110" cy="15.6" rx="81.2" ry="10.8" fill="#9AB8A8"/>
+    <ellipse id="rim-inner" cx="110" cy="16.6" rx="76.2" ry="7.2" fill="#3A4A40" fill-opacity="0.45"/>
+    <ellipse id="rim-top-highlight" cx="110" cy="13.2" rx="78.2" ry="3" stroke="white" stroke-opacity="0.16" stroke-width="0.8"/>
+
+    <line id="foot-line" x1="62.5" y1="110.4" x2="157.5" y2="110.4" stroke="#607B6C" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+
+    <path
+      id="body-outline"
+      d="M30.8 21.6C38.5 36 8.8 36 8.8 62.4C8.8 86.4 56.5 96 60.5 110.4H159.5C163.5 96 211.2 86.4 211.2 62.4C211.2 36 181.5 36 189.2 21.6H30.8Z"
+      fill="none"
+      stroke="#5F8575"
+      stroke-opacity="0.3"
+      stroke-width="0.6"
+    />
+
+    <g id="front-rim" clip-path="url(#frontRimClip)">
+      <ellipse id="front-rim-fill" cx="110" cy="15.6" rx="81.2" ry="10.8" fill="#9AB8A8"/>
+      <ellipse id="front-rim-highlight" cx="110" cy="16.6" rx="79.2" ry="8.4" stroke="white" stroke-opacity="0.14" stroke-width="0.7"/>
+    </g>
+  </g>
+</svg>

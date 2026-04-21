@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/components/section_page_header.dart';
 import '../../core/theme/theme.dart';
 import '../../services/stats_aggregator.dart';
 import 'stats_overview_section.dart';
@@ -47,7 +48,7 @@ class _StatsViewState extends State<StatsView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? SatoriColors.inkStone : SatoriColors.ricePaper,
+      backgroundColor: isDark ? SatoriColors.inkStone : Colors.white,
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator.adaptive())
@@ -57,20 +58,7 @@ class _StatsViewState extends State<StatsView> {
                   slivers: [
                     // 顶部标题
                     SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          SatoriTheme.spacingL,
-                          SatoriTheme.spacingXL,
-                          SatoriTheme.spacingL,
-                          SatoriTheme.spacingM,
-                        ),
-                        child: Text(
-                          '行迹',
-                          style: SatoriTypography.largeTitle.copyWith(
-                            color: isDark ? Colors.white : SatoriColors.inkSmoke,
-                          ),
-                        ),
-                      ),
+                      child: const SectionPageHeader(title: '行迹'),
                     ),
 
                     // 概览卡片

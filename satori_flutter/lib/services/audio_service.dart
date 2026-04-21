@@ -58,7 +58,8 @@ class AudioService {
 
   // MARK: - 音乐
 
-  Future<void> playMusic(String fileName, {String? title, String? artist, Duration? duration}) async {
+  Future<void> playMusic(String fileName,
+      {String? title, String? artist, Duration? duration}) async {
     await _musicPlayer?.stop();
     await _musicPlayer?.dispose();
 
@@ -66,7 +67,8 @@ class AudioService {
     await _musicPlayer!.setVolume(0);
     await _musicPlayer!.play(AssetSource('audio/$fileName.mp3'));
     isMusicPlaying = true;
-    _fadeIn(_musicPlayer!, targetVolume: 1.0, duration: const Duration(milliseconds: 1500));
+    _fadeIn(_musicPlayer!,
+        targetVolume: 1.0, duration: const Duration(milliseconds: 1500));
 
     // 同步系统媒体会话
     mediaSession?.updateMetadata(

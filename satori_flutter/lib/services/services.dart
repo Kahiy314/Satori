@@ -1,4 +1,5 @@
 export 'audio_service.dart';
+export 'entitlement_controller.dart';
 export 'focus_activity_service.dart';
 export 'haptic_service.dart';
 export 'local_session_repository.dart';

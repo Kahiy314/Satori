@@ -4,6 +4,7 @@ import '../services/local_stats_aggregator.dart';
 import '../services/local_user_preferences.dart';
 import '../services/platform_focus_activity_service.dart';
 import '../services/platform_media_session_service.dart';
+import '../services/entitlement_controller.dart';
 import '../services/session_repository.dart';
 import '../services/stats_aggregator.dart';
 import '../services/user_preferences.dart';
@@ -31,6 +32,11 @@ final focusActivityServiceProvider = Provider<FocusActivityService>((ref) {
 
 final mediaSessionServiceProvider = Provider<MediaSessionService>((ref) {
   return PlatformMediaSessionService();
+});
+
+final entitlementControllerProvider =
+    ChangeNotifierProvider<EntitlementController>((ref) {
+  return EntitlementController();
 });
 
 // ── 焚香 ViewModel Provider ──

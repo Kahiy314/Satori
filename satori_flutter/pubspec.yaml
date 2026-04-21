@@ -13,10 +13,13 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   audioplayers: ^6.1.0
+  just_audio: ^0.9.46
   vibration: ^2.0.0
   in_app_purchase: ^3.2.0
   shared_preferences: ^2.3.4
   cupertino_icons: ^1.0.8
+  material_symbols_icons: ^4.2815.0
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -30,4 +33,6 @@ flutter:
 
   assets:
     - assets/audio/
+    - assets/audio/white_noise/
+    - assets/audio/instrumental_music/
     - assets/images/

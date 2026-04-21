@@ -1,19 +1,25 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-/// 书法游丝烟雾 — 从香顶升起的连续曲线烟
+/// 公式型游丝烟雾
 ///
-/// 参考图 2：烟呈柔和游丝状曲线，清晰可见，从香顶缓慢上升。
-/// 每条烟丝由多段分别绘制，alpha 从底部到顶部渐隐。
+/// 基于 x = a * y * sin(y + φ) 构建烟丝轮廓，其中：
+/// - a(t) = 0.5 * sin(2πt / T)，控制左右轻微摆动
+/// - φ 随时间推进，让烟看起来像持续上升，而不是原地晃动
+/// - y 从 0 到 2π 映射到烟雾的整体高度，并在上升过程中逐渐透明
 class CalligraphicSmokeView extends StatefulWidget {
   final double opacity;
-  final double burnProgress;
+  final Color color;
+  final Duration swayPeriod;
+  final double riseSpeed;
 
   const CalligraphicSmokeView({
     super.key,
     this.opacity = 1.0,
-    this.burnProgress = 0,
+    this.color = const Color(0xFF8C8882),
+    this.swayPeriod = const Duration(seconds: 3),
+    this.riseSpeed = 1.1,
   });
 
   @override
@@ -23,13 +29,13 @@ class CalligraphicSmokeView extends StatefulWidget {
 class _CalligraphicSmokeViewState extends State<CalligraphicSmokeView>
     with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
-  double _time = 0;
+  double _timeSeconds = 0;
 
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker((elapsed) {
-      _time = elapsed.inMilliseconds / 1000.0;
+    _ticker = createTicker((_) {
+      _timeSeconds = DateTime.now().millisecondsSinceEpoch / 1000.0;
       setState(() {});
     });
     _ticker.start();
@@ -43,17 +49,21 @@ class _CalligraphicSmokeViewState extends State<CalligraphicSmokeView>
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 1500),
-        curve: Curves.easeIn,
-        opacity: widget.opacity,
-        child: CustomPaint(
-          painter: _CalligraphicSmokePainter(
-            time: _time,
-            isDark: Theme.of(context).brightness == Brightness.dark,
+    return IgnorePointer(
+      child: RepaintBoundary(
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 900),
+          curve: Curves.easeOut,
+          opacity: widget.opacity,
+          child: CustomPaint(
+            painter: _CalligraphicSmokePainter(
+              timeSeconds: _timeSeconds,
+              baseColor: widget.color,
+              swayPeriod: widget.swayPeriod,
+              riseSpeed: widget.riseSpeed,
+            ),
+            size: Size.infinite,
           ),
-          size: Size.infinite,
         ),
       ),
     );
@@ -61,68 +71,82 @@ class _CalligraphicSmokeViewState extends State<CalligraphicSmokeView>
 }
 
 class _CalligraphicSmokePainter extends CustomPainter {
-  final double time;
-  final bool isDark;
+  final double timeSeconds;
+  final Color baseColor;
+  final Duration swayPeriod;
+  final double riseSpeed;
 
-  _CalligraphicSmokePainter({required this.time, required this.isDark});
+  _CalligraphicSmokePainter({
+    required this.timeSeconds,
+    required this.baseColor,
+    required this.swayPeriod,
+    required this.riseSpeed,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final cx = w / 2;
-
-    // 三束游丝，各自有不同的摆幅、速度和粗细
-    _drawStrand(canvas, cx, h, ampX: 15, speed: 0.4, phase: 0.0, baseAlpha: 0.45, strokeW: 1.8);
-    _drawStrand(canvas, cx, h, ampX: 22, speed: 0.28, phase: 1.5, baseAlpha: 0.25, strokeW: 2.8);
-    _drawStrand(canvas, cx, h, ampX: 30, speed: 0.18, phase: 3.2, baseAlpha: 0.12, strokeW: 4.5);
+    _drawStrand(
+      canvas,
+      size,
+      lateralShift: 0,
+      phaseOffset: 0,
+      widthFactor: 1.0,
+      alphaFactor: 0.34,
+    );
   }
 
-  void _drawStrand(Canvas canvas, double cx, double h, {
-    required double ampX,
-    required double speed,
-    required double phase,
-    required double baseAlpha,
-    required double strokeW,
+  void _drawStrand(
+    Canvas canvas,
+    Size size, {
+    required double lateralShift,
+    required double phaseOffset,
+    required double widthFactor,
+    required double alphaFactor,
   }) {
-    final baseColor = isDark ? Colors.white : const Color(0xFF8A8A8A);
-    const segments = 60;
-    final segH = h / segments;
+    const maxParamY = math.pi * 2;
+    const segments = 64;
+    final swayCycleSeconds = swayPeriod.inMilliseconds / 1000.0;
+    final amplitude = 0.5 *
+        math.sin((2 * math.pi * timeSeconds / swayCycleSeconds) +
+            phaseOffset * 0.35);
+    final animatedPhase = timeSeconds * riseSpeed + phaseOffset;
+    final origin = Offset(size.width / 2 + lateralShift, size.height * 0.90);
+    final verticalExtent = size.height * 0.84;
+    final horizontalScale = size.width * 0.065 * widthFactor;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
-    // 计算所有点位
-    final points = <Offset>[];
+    Offset? previous;
     for (var i = 0; i <= segments; i++) {
-      final y = h - i * segH; // 从底向上
-      final t = i / segments; // 0=底, 1=顶
+      final progress = i / segments;
+      final yValue = progress * maxParamY;
+      final x = origin.dx +
+          amplitude *
+              yValue *
+              math.sin(yValue + animatedPhase) *
+              horizontalScale;
+      final y = origin.dy - progress * verticalExtent;
+      final current = Offset(x, y);
 
-      // 正弦叠加产生优雅曲线
-      final s1 = sin(t * 4.0 * pi + phase + time * speed) * ampX * t;
-      final s2 = sin(t * 2.5 * pi + phase * 0.7 + time * speed * 0.6) * ampX * 0.4 * t;
-      final x = cx + s1 + s2;
-      points.add(Offset(x, y));
-    }
+      if (previous != null) {
+        final fade = math.pow(1 - progress, 1.8).toDouble();
+        final strokeWidth = (2.2 - 1.5 * progress) * widthFactor;
+        paint
+          ..strokeWidth = strokeWidth
+          ..color = baseColor.withValues(alpha: alphaFactor * fade)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, strokeWidth * 0.7);
+        canvas.drawLine(previous, current, paint);
+      }
 
-    // 逐段绘制，每段独立 alpha
-    for (var i = 0; i < points.length - 1; i++) {
-      final t = i / segments;
-      // 底部不透明，顶部渐隐
-      final alpha = baseAlpha * (1.0 - t * t) ; // 二次衰减
-      if (alpha < 0.01) continue;
-
-      // 笔触粗细：底部略细（刚升起），中段最粗（扩散），顶部再次变细（消散）
-      final widthMult = sin(t * pi) * 0.6 + 0.4; // 0.4 ~ 1.0 ~ 0.4
-
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeW * widthMult
-        ..strokeCap = StrokeCap.round
-        ..color = baseColor.withValues(alpha: alpha)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, strokeW * widthMult * 0.6);
-
-      canvas.drawLine(points[i], points[i + 1], paint);
+      previous = current;
     }
   }
 
   @override
-  bool shouldRepaint(_CalligraphicSmokePainter old) => true;
+  bool shouldRepaint(_CalligraphicSmokePainter old) =>
+      old.timeSeconds != timeSeconds ||
+      old.baseColor != baseColor ||
+      old.swayPeriod != swayPeriod ||
+      old.riseSpeed != riseSpeed;
 }

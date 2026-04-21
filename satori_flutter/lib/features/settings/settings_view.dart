@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../services/entitlement_controller.dart';
+import '../../core/components/section_page_header.dart';
 import '../../core/theme/theme.dart';
 
 /// 设置页 — U3
@@ -7,34 +10,38 @@ import '../../core/theme/theme.dart';
 /// 品茗在此保留会员与权益入口（双重露出 U6）。
 class SettingsView extends StatelessWidget {
   final VoidCallback? onTeaTap;
+  final EntitlementController entitlementController;
+  static const _appVersion = 'v1.0.0';
 
-  const SettingsView({super.key, this.onTeaTap});
+  const SettingsView({
+    super.key,
+    this.onTeaTap,
+    required this.entitlementController,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : SatoriColors.inkSmoke;
-    final subColor = isDark
-        ? Colors.white54
-        : SatoriColors.inkSmoke.withValues(alpha: 0.6);
+    final subColor =
+        isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
     final cardColor = isDark
         ? Colors.white.withValues(alpha: 0.06)
         : Colors.white.withValues(alpha: 0.8);
 
     return Scaffold(
-      backgroundColor: isDark ? SatoriColors.inkStone : SatoriColors.ricePaper,
+      backgroundColor: isDark ? SatoriColors.inkStone : Colors.white,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(
             horizontal: SatoriTheme.spacingL,
           ),
           children: [
-            const SizedBox(height: SatoriTheme.spacingXL),
-            Text(
-              '设置',
-              style: SatoriTypography.largeTitle.copyWith(color: textColor),
+            const SectionPageHeader(
+              title: '设置',
+              padding: EdgeInsets.only(top: SatoriTheme.spacingM),
             ),
-            const SizedBox(height: SatoriTheme.spacingXL),
+            const SizedBox(height: SatoriTheme.spacingL),
 
             // ── 账号信息 ──
             _SectionHeader(title: '账号', color: subColor),
@@ -114,6 +121,31 @@ class SettingsView extends StatelessWidget {
             ),
             const SizedBox(height: SatoriTheme.spacingL),
 
+            _SectionHeader(title: '开发', color: subColor),
+            const SizedBox(height: SatoriTheme.spacingS),
+            _SettingsCard(
+              color: cardColor,
+              children: [
+                _SettingsRow(
+                  icon: Icons.construction_outlined,
+                  label: '开发者模式',
+                  textColor: textColor,
+                  subColor: subColor,
+                  trailing: entitlementController.isReady
+                      ? _DeveloperModeBadge(
+                          enabled: entitlementController.isDeveloperModeEnabled,
+                        )
+                      : Text(
+                          '加载中',
+                          style: SatoriTypography.caption
+                              .copyWith(color: subColor),
+                        ),
+                  onTap: () => _handleDeveloperModeTap(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: SatoriTheme.spacingL),
+
             // ── 关于 ──
             _SectionHeader(title: '关于', color: subColor),
             const SizedBox(height: SatoriTheme.spacingS),
@@ -125,6 +157,10 @@ class SettingsView extends StatelessWidget {
                   label: '关于 Satori',
                   textColor: textColor,
                   subColor: subColor,
+                  trailing: Text(
+                    _appVersion,
+                    style: SatoriTypography.caption.copyWith(color: subColor),
+                  ),
                   onTap: () {},
                 ),
                 _Divider(color: subColor),
@@ -140,6 +176,102 @@ class SettingsView extends StatelessWidget {
             const SizedBox(height: SatoriTheme.spacingXXL),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _handleDeveloperModeTap(BuildContext context) async {
+    if (entitlementController.isDeveloperModeEnabled) {
+      final shouldDisable = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('关闭开发者模式'),
+          content: const Text('关闭后将恢复会员权限限制，正在播放的会员内容也会停止。'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('关闭'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldDisable == true) {
+        await entitlementController.setDeveloperModeEnabled(false);
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('开发者模式已关闭')),
+        );
+      }
+      return;
+    }
+
+    final passwordController = TextEditingController();
+    final password = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('开启开发者模式'),
+        content: TextField(
+          controller: passwordController,
+          autofocus: true,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: '输入密码',
+          ),
+          onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(passwordController.text),
+            child: const Text('开启'),
+          ),
+        ],
+      ),
+    );
+    passwordController.dispose();
+
+    if (password == null) {
+      return;
+    }
+
+    final unlocked = await entitlementController.unlockDeveloperMode(password);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(unlocked ? '开发者模式已开启' : '密码错误'),
+      ),
+    );
+  }
+}
+
+class _DeveloperModeBadge extends StatelessWidget {
+  final bool enabled;
+
+  const _DeveloperModeBadge({required this.enabled});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled ? SatoriColors.incenseEmber : Colors.grey;
+    final text = enabled ? '已开启' : '未开启';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+      ),
+      child: Text(
+        text,
+        style: SatoriTypography.caption.copyWith(color: color),
       ),
     );
   }
@@ -232,8 +364,7 @@ class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingM),
+      padding: const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingM),
       child: Divider(height: 1, color: color.withValues(alpha: 0.15)),
     );
   }

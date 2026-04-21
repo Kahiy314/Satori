@@ -55,7 +55,7 @@ class _StatsDayTimelineViewState extends State<StatsDayTimelineView> {
     final textColor = isDark ? Colors.white : SatoriColors.inkSmoke;
 
     return Scaffold(
-      backgroundColor: isDark ? SatoriColors.inkStone : SatoriColors.ricePaper,
+      backgroundColor: isDark ? SatoriColors.inkStone : Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

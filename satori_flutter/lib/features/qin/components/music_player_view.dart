@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../core/theme/theme.dart';
@@ -35,11 +36,11 @@ class MusicPlayerView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(vm.formattedCurrentTime,
-                        style: SatoriTypography.caption
-                            .copyWith(color: Colors.grey.withValues(alpha: 0.6))),
+                        style: SatoriTypography.caption.copyWith(
+                            color: Colors.grey.withValues(alpha: 0.6))),
                     Text(vm.formattedDuration,
-                        style: SatoriTypography.caption
-                            .copyWith(color: Colors.grey.withValues(alpha: 0.6))),
+                        style: SatoriTypography.caption.copyWith(
+                            color: Colors.grey.withValues(alpha: 0.6))),
                   ],
                 ),
                 const SizedBox(height: SatoriTheme.spacingS),
@@ -60,7 +61,9 @@ class MusicPlayerView extends StatelessWidget {
                     ),
                     // 播放/暂停
                     GestureDetector(
-                      onTap: vm.togglePlayPause,
+                      onTap: () {
+                        unawaited(vm.togglePlayPause());
+                      },
                       child: Icon(
                         vm.isPlaying
                             ? Icons.pause_circle_filled
@@ -72,7 +75,9 @@ class MusicPlayerView extends StatelessWidget {
                     const SizedBox(width: SatoriTheme.spacingS),
                     // 下一曲
                     GestureDetector(
-                      onTap: vm.playNext,
+                      onTap: () {
+                        unawaited(vm.playNext());
+                      },
                       child: const Icon(
                         Icons.skip_next,
                         size: 18,
@@ -109,7 +114,9 @@ class _ProgressSlider extends StatelessWidget {
         value: vm.currentTime.clamp(0, maxVal),
         min: 0,
         max: maxVal,
-        onChanged: (v) => vm.seek(v),
+        onChanged: (v) {
+          unawaited(vm.seek(v));
+        },
       ),
     );
   }

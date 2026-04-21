@@ -1,17 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/theme.dart';
 import '../../core/models/focus_session.dart';
-import '../../core/components/drawer_entry_button.dart';
-import '../../core/components/paper_texture_background.dart';
 import '../../services/haptic_service.dart';
 import '../../services/user_preferences.dart';
 import '../../app/providers.dart';
 import 'incense_view_model.dart';
 import 'components/calligraphic_smoke_view.dart';
-import 'components/incense_ember_view.dart';
-import 'components/incense_stick_view.dart';
 import 'components/ring_control_view.dart';
 
 /// 焚香主页面 — 文人案头仪式界面
@@ -21,8 +18,7 @@ import 'components/ring_control_view.dart';
 /// 正计时态 = "气、流动、聚拢、内观"
 /// 共享世界观：东方、克制、安静、留白、非炫技
 class IncenseView extends ConsumerStatefulWidget {
-  final VoidCallback? onDrawerTap;
-  const IncenseView({super.key, this.onDrawerTap});
+  const IncenseView({super.key});
 
   @override
   ConsumerState<IncenseView> createState() => _IncenseViewState();
@@ -32,24 +28,17 @@ class _IncenseViewState extends ConsumerState<IncenseView> {
   IncenseViewModel? _vmRef;
   StreamSubscription<IncenseSessionEvent>? _eventSub;
 
-  // Convenience accessor — non-null after didChangeDependencies
-  IncenseViewModel get _vm => _vmRef!;
+  IncenseViewModel get _vm => _vmRef ?? ref.read(incenseViewModelProvider);
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final newVm = ref.watch(incenseViewModelProvider);
+    final newVm = ref.read(incenseViewModelProvider);
     if (newVm != _vmRef) {
-      _vmRef?.removeListener(_onChanged);
       _eventSub?.cancel();
       _vmRef = newVm;
-      _vmRef!.addListener(_onChanged);
       _eventSub = _vmRef!.sessionEvents.listen(_onSessionEvent);
     }
-  }
-
-  void _onChanged() {
-    if (mounted) setState(() {});
   }
 
   void _onSessionEvent(IncenseSessionEvent event) {
@@ -62,19 +51,17 @@ class _IncenseViewState extends ConsumerState<IncenseView> {
   @override
   void dispose() {
     _eventSub?.cancel();
-    _vmRef?.removeListener(_onChanged);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final vm = ref.watch(incenseViewModelProvider);
+
     return GestureDetector(
       onVerticalDragEnd: _onVerticalSwipe,
       child: Stack(
         children: [
-          // ── 纸纹材质背景 ──
-          const PaperTextureBackground(),
-
           // ── 主内容 ──
           SafeArea(
             bottom: false,
@@ -83,33 +70,25 @@ class _IncenseViewState extends ConsumerState<IncenseView> {
               transitionBuilder: (child, anim) {
                 return FadeTransition(opacity: anim, child: child);
               },
-              child: _vm.timerMode == TimerMode.countdown
+              child: vm.timerMode == TimerMode.countdown
                   ? _CountdownLayout(
                       key: const ValueKey('countdown'),
-                      vm: _vm,
+                      vm: vm,
                       onAction: _handleAction,
                       onCustomDuration: _showCustomDurationSheet,
                       onTagInput: _showTagInput,
                     )
                   : _CountUpLayout(
                       key: const ValueKey('countup'),
-                      vm: _vm,
+                      vm: vm,
                       onAction: _handleAction,
                       onTagInput: _showTagInput,
                     ),
             ),
           ),
 
-          // ── 左上角宣纸入口 — 极淡，不破坏安静感 ──
-          if (widget.onDrawerTap != null)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + SatoriTheme.spacingS,
-              left: SatoriTheme.spacingS,
-              child: DrawerEntryButton(onTap: widget.onDrawerTap!),
-            ),
-
           // ── 右上角模式切换 — 仅 idle 时显示 ──
-          if (_vm.state == TimerState.idle)
+          if (vm.state == TimerState.idle)
             Positioned(
               top: MediaQuery.of(context).padding.top + SatoriTheme.spacingM,
               right: SatoriTheme.spacingM,
@@ -181,7 +160,9 @@ class _IncenseViewState extends ConsumerState<IncenseView> {
         width: 56,
         height: 28,
         decoration: BoxDecoration(
-          color: isSelected ? SatoriColors.incenseEmber.withValues(alpha: 0.85) : Colors.transparent,
+          color: isSelected
+              ? SatoriColors.incenseEmber.withValues(alpha: 0.85)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
@@ -280,91 +261,67 @@ class _CountdownLayout extends StatelessWidget {
     final isPaused = vm.state == TimerState.paused;
     final isIdle = vm.state == TimerState.idle;
     final isCompleted = vm.state == TimerState.completed;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ??
-        Colors.black;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final h = constraints.maxHeight;
         final w = constraints.maxWidth;
+        // 按 SVG viewBox 比例做锚定，整张 SVG 等比放大后，
+        // 香尖和炉身底边的位置会跟着一起变化，不会打乱内部相对关系。
+        const svgViewBox = 600.0;
+        const incenseTipYRatio = 62 / svgViewBox;
+        const furnaceBottomYRatio = 520 / svgViewBox;
 
-        // 参考图中：香炉占页面很大比例，居中偏下
-        // 香炉尺寸：宽度约为屏宽 35~40%
-        final burnerW = w * 0.38;
-        final burnerH = burnerW * 0.55; // 宽高比约 2:1
-        final burnerTop = h * 0.42;     // 炉子上沿
-        final burnerCx = w / 2;
-
-        // 香身：从炉口处向上延伸
-        final stickMaxH = h * 0.30;
-        final visibleStickH = stickMaxH * (1 - vm.burnProgress);
-        // 香底部嵌入炉口内（炉口在炉身上方约 18% 位置）
-        final stickBottom = burnerTop + burnerH * 0.12;
-        final stickTop = stickBottom - visibleStickH;
-
-        // 烟起点：从香顶向上
-        final smokeBottom = stickTop;
-        final smokeTop = (smokeBottom - h * 0.40).clamp(0.0, smokeBottom);
+        final furnaceSize = (w * 0.54).clamp(180.0, 232.0).toDouble();
+        final furnaceTop = h * 0.20;
+        final furnaceCx = w / 2;
+        final furnaceLeft = furnaceCx - furnaceSize / 2;
+        final showActiveFurnace = isRunning || isPaused;
+        final showSmoke = showActiveFurnace;
+        final smokeW = furnaceSize * 1.0;
+        final smokeH = furnaceSize * 0.74;
+        final smokeAnchorX = furnaceLeft + furnaceSize / 2;
+        final smokeAnchorY = furnaceTop + furnaceSize * incenseTipYRatio;
+        final smokeLeft = smokeAnchorX - smokeW / 2;
+        final smokeTop = smokeAnchorY - smokeH * 0.90;
+        final infoTop = furnaceTop + furnaceSize * furnaceBottomYRatio + 12;
 
         return Stack(
           children: [
-            // ── 游丝烟 ──
-            Positioned(
-              left: burnerCx - 100,
-              top: smokeTop,
-              child: SizedBox(
-                width: 200,
-                height: smokeBottom - smokeTop,
-                child: CalligraphicSmokeView(
-                  opacity: isRunning ? 1.0 : (isPaused ? 0.4 : 0.15),
-                  burnProgress: vm.burnProgress,
-                ),
-              ),
-            ),
-
-            // ── 香炉（炉身 + 后沿，位于香身之下） ──
-            Positioned(
-              left: burnerCx - burnerW / 2,
-              top: burnerTop,
-              child: SizedBox(
-                width: burnerW,
-                height: burnerH,
-                child: const IncenseBurnerView(),
-              ),
-            ),
-
-            // ── 香身（在炉身之上，但被前沿遮挡） ──
-            if (visibleStickH > 2)
+            // ── 烟雾（单独动画层，叠在香炉图像后方） ──
+            if (showSmoke)
               Positioned(
-                left: burnerCx - 2.5,
-                top: stickTop,
+                left: smokeLeft,
+                top: smokeTop,
                 child: SizedBox(
-                  width: 5,
-                  height: visibleStickH,
-                  child: IncenseStickView(burnProgress: vm.burnProgress),
+                  width: smokeW,
+                  height: smokeH,
+                  child: CalligraphicSmokeView(
+                    opacity: isPaused ? 0.72 : 1.0,
+                    color: const Color(0xFF8C8882),
+                    swayPeriod: Duration(milliseconds: isPaused ? 3600 : 3000),
+                    riseSpeed: isPaused ? 0.82 : 1.12,
+                  ),
                 ),
               ),
 
-            // ── 余烬 ──
-            if (isRunning && visibleStickH > 2)
-              Positioned(
-                left: burnerCx - 7,
-                top: stickTop - 5,
-                child: const SizedBox(
-                  width: 14,
-                  height: 10,
-                  child: IncenseEmberView(),
-                ),
-              ),
-
-            // ── 香炉前沿（遮住香身穿过炉口的部分） ──
+            // ── 香炉图像（来自 Figma 设计稿） ──
             Positioned(
-              left: burnerCx - burnerW / 2,
-              top: burnerTop,
-              child: SizedBox(
-                width: burnerW,
-                height: burnerH,
-                child: const IncenseBurnerFrontRim(),
+              left: furnaceLeft,
+              top: furnaceTop,
+              child: RepaintBoundary(
+                child: SizedBox(
+                  width: furnaceSize,
+                  height: furnaceSize,
+                  child: SvgPicture.asset(
+                    showActiveFurnace
+                        ? 'assets/images/furnace_with_incense.svg'
+                        : 'assets/images/furnace_without_incense.svg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             ),
 
@@ -372,7 +329,7 @@ class _CountdownLayout extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              top: burnerTop + burnerH + 8,
+              top: infoTop,
               bottom: 0,
               child: SingleChildScrollView(
                 physics: const NeverScrollableScrollPhysics(),
@@ -462,8 +419,7 @@ class _CountdownLayout extends StatelessWidget {
                     color: isSelected
                         ? SatoriColors.incenseEmber.withValues(alpha: 0.12)
                         : Colors.grey.withValues(alpha: 0.06),
-                    borderRadius:
-                        BorderRadius.circular(SatoriTheme.cornerPill),
+                    borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
                   ),
                   child: Text(
                     p.label,
@@ -540,16 +496,44 @@ class _CountdownLayout extends StatelessWidget {
 
   Widget _buildTagChip(BuildContext context, VoidCallback onTap) {
     final tag = vm.currentTaskTag;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = tag != null
+        ? SatoriColors.incenseEmber.withValues(alpha: isDark ? 0.14 : 0.10)
+        : (isDark
+            ? const Color(0xFF29292C)
+            : Colors.white.withValues(alpha: 0.96));
+    final borderColor = tag != null
+        ? SatoriColors.incenseEmber.withValues(alpha: 0.22)
+        : Colors.grey.withValues(alpha: isDark ? 0.18 : 0.12);
+    final shadowColor = isDark
+        ? Colors.black.withValues(alpha: 0.24)
+        : SatoriColors.inkSmoke.withValues(alpha: 0.08);
+
     return GestureDetector(
       onTap: () {
         HapticService.instance.lightTap();
         onTap();
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: AnimatedContainer(
+        duration: SatoriTheme.animNormal,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.06),
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor,
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+            if (!isDark)
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.65),
+                blurRadius: 10,
+                offset: const Offset(0, -1),
+              ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -578,14 +562,14 @@ class _CountdownLayout extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════
-// 正计时布局 — "气、流动、内观"
+// 正计时布局 — "简洁、内观"
 //
-// - 上方："已专注:" + 大号累计时间
-// - 中心：游丝烟从屏幕下端缓缓上升
+// - 上方：实时时钟（系统时间）
+// - 中央："已专注:" + 大号累计时间
 // - 下方：控制按钮
 // ══════════════════════════════════════════════════════════
 
-class _CountUpLayout extends StatelessWidget {
+class _CountUpLayout extends StatefulWidget {
   final IncenseViewModel vm;
   final VoidCallback onAction;
   final VoidCallback onTagInput;
@@ -597,46 +581,77 @@ class _CountUpLayout extends StatelessWidget {
   });
 
   @override
+  State<_CountUpLayout> createState() => _CountUpLayoutState();
+}
+
+class _CountUpLayoutState extends State<_CountUpLayout> {
+  late final Stream<DateTime> _clockStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _clockStream = Stream.periodic(
+      const Duration(seconds: 1),
+      (_) => DateTime.now(),
+    ).asBroadcastStream();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final vm = widget.vm;
+    final onAction = widget.onAction;
+    final onTagInput = widget.onTagInput;
     final isRunning = vm.state == TimerState.running;
     final isPaused = vm.state == TimerState.paused;
     final isIdle = vm.state == TimerState.idle;
     final isCompleted = vm.state == TimerState.completed;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ??
-        Colors.black;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final h = constraints.maxHeight;
-        final w = constraints.maxWidth;
 
         return Stack(
           children: [
-            // ── 游丝烟（从屏幕底端往上飘） ──
-            Positioned(
-              left: w / 2 - 100,
-              top: h * 0.12,
-              bottom: 0,
-              child: SizedBox(
-                width: 200,
-                child: CalligraphicSmokeView(
-                  opacity: isRunning ? 0.85 : (isPaused ? 0.4 : 0.2),
-                ),
-              ),
-            ),
-
-            // ── 上方：时间信息 ──
+            // ── 上方：实时时钟 ──
             Positioned(
               left: 0,
               right: 0,
-              top: h * 0.08,
+              top: h * 0.10,
+              child: StreamBuilder<DateTime>(
+                stream: _clockStream,
+                initialData: DateTime.now(),
+                builder: (context, snapshot) {
+                  final now = snapshot.data ?? DateTime.now();
+                  final timeStr =
+                      '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+                  return Text(
+                    timeStr,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 56,
+                      fontWeight: FontWeight.w200,
+                      letterSpacing: 4,
+                      color: textColor.withValues(alpha: 0.15),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // ── 中央：专注时间 ──
+            Positioned(
+              left: 0,
+              right: 0,
+              top: h * 0.35,
               child: Column(
                 children: [
                   AnimatedOpacity(
                     duration: SatoriTheme.animNormal,
                     opacity: isRunning || isPaused ? 1.0 : 0.5,
                     child: Text(
-                      isIdle ? '' : (isPaused ? '已暂停' : '已专注:'),
+                      isIdle ? '' : (isPaused ? '已暂停' : '已专注'),
                       style: SatoriTypography.caption.copyWith(
                         color: textColor.withValues(alpha: 0.35),
                         letterSpacing: 2,
@@ -669,8 +684,7 @@ class _CountUpLayout extends StatelessWidget {
                       icon: Icons.play_arrow,
                       isActive: false,
                     ),
-                  ]
-                  else if (isRunning)
+                  ] else if (isRunning)
                     RingControlView(
                       onTap: onAction,
                       icon: Icons.pause,
@@ -685,8 +699,6 @@ class _CountUpLayout extends StatelessWidget {
                       icon: Icons.refresh,
                       isActive: false,
                     ),
-
-                  // 正计时专用停止按钮
                   if (isPaused) ...[
                     const SizedBox(height: SatoriTheme.spacingM),
                     GestureDetector(
@@ -697,7 +709,8 @@ class _CountUpLayout extends StatelessWidget {
                       child: Text(
                         '完成本次专注',
                         style: SatoriTypography.caption.copyWith(
-                          color: SatoriColors.incenseEmber.withValues(alpha: 0.6),
+                          color:
+                              SatoriColors.incenseEmber.withValues(alpha: 0.6),
                         ),
                       ),
                     ),
@@ -718,7 +731,7 @@ class _CountUpLayout extends StatelessWidget {
         GestureDetector(
           onTap: () {
             HapticService.instance.lightTap();
-            vm.start();
+            widget.vm.start();
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -735,7 +748,7 @@ class _CountUpLayout extends StatelessWidget {
         GestureDetector(
           onTap: () {
             HapticService.instance.lightTap();
-            vm.reset();
+            widget.vm.reset();
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -753,11 +766,11 @@ class _CountUpLayout extends StatelessWidget {
   }
 
   Widget _buildTagChip(BuildContext context) {
-    final tag = vm.currentTaskTag;
+    final tag = widget.vm.currentTaskTag;
     return GestureDetector(
       onTap: () {
         HapticService.instance.lightTap();
-        onTagInput();
+        widget.onTagInput();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -839,7 +852,8 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
           children: [
             const SizedBox(height: 12),
             Container(
-              width: 36, height: 4,
+              width: 36,
+              height: 4,
               decoration: BoxDecoration(
                 color: Colors.grey.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
@@ -878,7 +892,8 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
                   Positioned(
                     bottom: 0,
                     child: SizedBox(
-                      width: 50, height: 30,
+                      width: 50,
+                      height: 30,
                       child: CustomPaint(painter: _MiniburnerPainter()),
                     ),
                   ),
@@ -888,14 +903,16 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
             const Spacer(),
             // 滑块
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
               child: Column(
                 children: [
                   Slider(
                     value: _minutes.toDouble(),
                     min: IncenseViewModel.minMinutes.toDouble(),
                     max: IncenseViewModel.maxMinutes.toDouble(),
-                    divisions: IncenseViewModel.maxMinutes - IncenseViewModel.minMinutes,
+                    divisions: IncenseViewModel.maxMinutes -
+                        IncenseViewModel.minMinutes,
                     activeColor: SatoriColors.incenseEmber,
                     onChanged: (v) => setState(() => _minutes = v.toInt()),
                   ),
@@ -903,9 +920,11 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('${IncenseViewModel.minMinutes} 分钟',
-                          style: SatoriTypography.caption.copyWith(color: Colors.grey)),
+                          style: SatoriTypography.caption
+                              .copyWith(color: Colors.grey)),
                       Text('${IncenseViewModel.maxMinutes} 分钟',
-                          style: SatoriTypography.caption.copyWith(color: Colors.grey)),
+                          style: SatoriTypography.caption
+                              .copyWith(color: Colors.grey)),
                     ],
                   ),
                 ],
@@ -914,7 +933,8 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
             const SizedBox(height: SatoriTheme.spacingXL),
             // 确认
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -922,7 +942,8 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
                     backgroundColor: SatoriColors.incenseEmber,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(SatoriTheme.cornerMedium),
+                      borderRadius:
+                          BorderRadius.circular(SatoriTheme.cornerMedium),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -949,7 +970,8 @@ class _MiniburnerPainter extends CustomPainter {
     final cx = size.width / 2;
     final cy = size.height / 2;
     canvas.drawOval(
-      Rect.fromCenter(center: Offset(cx, cy), width: size.width, height: size.height),
+      Rect.fromCenter(
+          center: Offset(cx, cy), width: size.width, height: size.height),
       Paint()
         ..shader = const LinearGradient(
           begin: Alignment.topCenter,
@@ -1022,7 +1044,8 @@ class _TagInputSheetState extends State<_TagInputSheet> {
           children: [
             Center(
               child: Container(
-                width: 36, height: 4,
+                width: 36,
+                height: 4,
                 decoration: BoxDecoration(
                   color: Colors.grey.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
@@ -1054,7 +1077,8 @@ class _TagInputSheetState extends State<_TagInputSheet> {
                   ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 12,
+                  horizontal: 16,
+                  vertical: 12,
                 ),
               ),
               onSubmitted: _applyTag,
@@ -1068,19 +1092,23 @@ class _TagInputSheetState extends State<_TagInputSheet> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: _recentTags.map((tag) => GestureDetector(
-                  onTap: () => _applyTag(tag),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
-                    ),
-                    child: Text(tag, style: SatoriTypography.caption),
-                  ),
-                )).toList(),
+                children: _recentTags
+                    .map((tag) => GestureDetector(
+                          onTap: () => _applyTag(tag),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withValues(alpha: 0.08),
+                              borderRadius:
+                                  BorderRadius.circular(SatoriTheme.cornerPill),
+                            ),
+                            child: Text(tag, style: SatoriTypography.caption),
+                          ),
+                        ))
+                    .toList(),
               ),
             ],
             const SizedBox(height: SatoriTheme.spacingL),
@@ -1093,7 +1121,8 @@ class _TagInputSheetState extends State<_TagInputSheet> {
                       Navigator.pop(context);
                     },
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+                      side:
+                          BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1116,8 +1145,9 @@ class _TagInputSheetState extends State<_TagInputSheet> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: Text('确定', style: SatoriTypography.caption
-                        .copyWith(color: Colors.white)),
+                    child: Text('确定',
+                        style: SatoriTypography.caption
+                            .copyWith(color: Colors.white)),
                   ),
                 ),
               ],
@@ -1190,7 +1220,8 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
             children: [
               const SizedBox(height: 12),
               Container(
-                width: 36, height: 4,
+                width: 36,
+                height: 4,
                 decoration: BoxDecoration(
                   color: Colors.grey.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
@@ -1220,7 +1251,8 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
                 const SizedBox(height: SatoriTheme.spacingS),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4,
+                    horizontal: 10,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: SatoriColors.incenseEmber.withValues(alpha: 0.1),
@@ -1299,8 +1331,9 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
                       _selectedMood,
                     );
                   },
-                  child: Text('保存', style: SatoriTypography.subtitle
-                      .copyWith(color: Colors.white)),
+                  child: Text('保存',
+                      style: SatoriTypography.subtitle
+                          .copyWith(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: SatoriTheme.spacingS),
@@ -1320,7 +1353,11 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
 
   Widget _buildMoodRow() {
     const moods = [
-      (mood: ReflectionMood.focused, label: '专注', icon: Icons.center_focus_strong),
+      (
+        mood: ReflectionMood.focused,
+        label: '专注',
+        icon: Icons.center_focus_strong
+      ),
       (mood: ReflectionMood.calm, label: '平静', icon: Icons.spa),
       (mood: ReflectionMood.productive, label: '高效', icon: Icons.bolt),
       (mood: ReflectionMood.distracted, label: '分心', icon: Icons.blur_on),
@@ -1340,7 +1377,8 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
             child: AnimatedContainer(
               duration: SatoriTheme.animFast,
               padding: const EdgeInsets.symmetric(
-                horizontal: 10, vertical: 8,
+                horizontal: 10,
+                vertical: 8,
               ),
               decoration: BoxDecoration(
                 color: isSelected
