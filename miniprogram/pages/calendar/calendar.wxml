@@ -59,7 +59,7 @@
     >
       <text class="checkin-icon">📅</text>
       <text class="checkin-text">
-        {{isTodayChecked ? '今日已打卡 ✓' : (canCheckIn ? '今日打卡' : '完成任务后打卡')}}
+        {{isTodayChecked ? '今日已打卡 ✓' : '今日打卡'}}
       </text>
     </view>
   </view>

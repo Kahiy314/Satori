@@ -77,7 +77,7 @@ Page({
 
     const checkIn = storage.getCheckInByDate(today)
     const isChecked = checkIn?.completed || false
-    const canCheckIn = total > 0 && completed >= 1 && !isChecked
+    const canCheckIn = !isChecked
 
     this.setData({
       todayTasks: { completed, total },
@@ -104,7 +104,7 @@ Page({
   },
 
   handleCheckIn() {
-    if (!this.data.canCheckIn) return
+    if (this.data.isTodayChecked) return
 
     const today = formatDateStr(new Date())
     const tasks = storage.getTasks()
