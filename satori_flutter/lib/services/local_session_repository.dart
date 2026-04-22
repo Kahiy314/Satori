@@ -43,6 +43,12 @@ class LocalSessionRepository implements SessionRepository {
     await _persist();
   }
 
+  Future<List<FocusSession>> allSessions() async {
+    final sessions = await _load();
+    return List<FocusSession>.from(sessions)
+      ..sort((a, b) => b.startAt.compareTo(a.startAt));
+  }
+
   @override
   Future<FocusSession?> findById(String sessionId) async {
     final sessions = await _load();
@@ -56,9 +62,7 @@ class LocalSessionRepository implements SessionRepository {
   @override
   Future<List<FocusSession>> findAllCounted() async {
     final sessions = await _load();
-    return sessions
-        .where((s) => s.isCountedInHistory)
-        .toList()
+    return sessions.where((s) => s.isCountedInHistory).toList()
       ..sort((a, b) => b.startAt.compareTo(a.startAt));
   }
 
@@ -79,9 +83,7 @@ class LocalSessionRepository implements SessionRepository {
   @override
   Future<List<FocusSession>> findUncounted() async {
     final sessions = await _load();
-    return sessions
-        .where((s) => !s.isCountedInHistory)
-        .toList()
+    return sessions.where((s) => !s.isCountedInHistory).toList()
       ..sort((a, b) => b.startAt.compareTo(a.startAt));
   }
 

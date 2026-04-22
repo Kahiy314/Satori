@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/models/focus_session.dart';
 import '../../core/theme/theme.dart';
 import '../../services/stats_aggregator.dart';
+import 'stats_session_detail_view.dart';
 
 /// 单日时间轴页面。
 /// 交互：顶部横向日期选择 + 主体纵向小时刻度。
@@ -36,8 +37,7 @@ class _StatsDayTimelineViewState extends State<StatsDayTimelineView> {
     final sessions = await widget.aggregator.sessionsForDay(_selectedDay);
     if (!mounted) return;
     setState(() {
-      _sessions = sessions
-        ..sort((a, b) => a.startAt.compareTo(b.startAt));
+      _sessions = sessions..sort((a, b) => a.startAt.compareTo(b.startAt));
       _loading = false;
     });
   }
@@ -86,7 +86,9 @@ class _StatsDayTimelineViewState extends State<StatsDayTimelineView> {
                   child: Text(
                     '当日无专注记录',
                     style: SatoriTypography.body.copyWith(
-                      color: isDark ? Colors.white38 : SatoriColors.inkSmoke.withValues(alpha: 0.4),
+                      color: isDark
+                          ? Colors.white38
+                          : SatoriColors.inkSmoke.withValues(alpha: 0.4),
                     ),
                   ),
                 )
@@ -97,23 +99,36 @@ class _StatsDayTimelineViewState extends State<StatsDayTimelineView> {
                   ),
                   itemCount: _sessions.length,
                   itemBuilder: (context, index) {
-                    return _TimelineEntry(session: _sessions[index]);
+                    return _TimelineEntry(
+                      session: _sessions[index],
+                      onTap: () => _showSessionDetail(_sessions[index]),
+                    );
                   },
                 ),
+    );
+  }
+
+  void _showSessionDetail(FocusSession session) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => StatsSessionDetailView(session: session),
+      ),
     );
   }
 }
 
 class _TimelineEntry extends StatelessWidget {
   final FocusSession session;
+  final VoidCallback onTap;
 
-  const _TimelineEntry({required this.session});
+  const _TimelineEntry({required this.session, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : SatoriColors.inkSmoke;
-    final subColor = isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
+    final subColor =
+        isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
 
     final startTime =
         '${session.startAt.hour.toString().padLeft(2, '0')}:${session.startAt.minute.toString().padLeft(2, '0')}';
@@ -130,86 +145,93 @@ class _TimelineEntry extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: SatoriTheme.spacingM),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 时间轴线
-            SizedBox(
-              width: 56,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(startTime,
-                      style: SatoriTypography.caption.copyWith(color: textColor)),
-                  const Spacer(),
-                  Text(endTime,
-                      style: SatoriTypography.caption.copyWith(color: subColor)),
-                ],
-              ),
-            ),
-            const SizedBox(width: SatoriTheme.spacingS),
-            // 竖线
-            Container(
-              width: 3,
-              decoration: BoxDecoration(
-                color: barColor,
-                borderRadius: BorderRadius.circular(1.5),
-              ),
-            ),
-            const SizedBox(width: SatoriTheme.spacingM),
-            // 内容
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(SatoriTheme.spacingM),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.06)
-                      : Colors.white.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(SatoriTheme.cornerMedium),
-                ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(SatoriTheme.cornerMedium),
+        onTap: onTap,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 时间轴线
+              SizedBox(
+                width: 56,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      '$minutes 分钟 · ${session.mode == FocusMode.countdown ? '倒计时' : '正计时'}',
-                      style: SatoriTypography.body.copyWith(color: textColor),
-                    ),
-                    if (session.taskTag != null &&
-                        session.taskTag!.isNotEmpty) ...[
-                      const SizedBox(height: SatoriTheme.spacingXS),
-                      Text(
-                        session.taskTag!,
-                        style: SatoriTypography.caption.copyWith(
-                          color: SatoriColors.verdigris,
-                        ),
-                      ),
-                    ],
-                    if (session.summaryNote != null &&
-                        session.summaryNote!.isNotEmpty) ...[
-                      const SizedBox(height: SatoriTheme.spacingXS),
-                      Text(
-                        session.summaryNote!,
+                    Text(startTime,
+                        style: SatoriTypography.caption
+                            .copyWith(color: textColor)),
+                    const Spacer(),
+                    Text(endTime,
                         style:
-                            SatoriTypography.caption.copyWith(color: subColor),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    if (session.reflectionMood != null) ...[
-                      const SizedBox(height: SatoriTheme.spacingXS),
-                      Text(
-                        _moodLabel(session.reflectionMood!),
-                        style: SatoriTypography.caption.copyWith(
-                          color: SatoriColors.stringGold,
-                        ),
-                      ),
-                    ],
+                            SatoriTypography.caption.copyWith(color: subColor)),
                   ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: SatoriTheme.spacingS),
+              // 竖线
+              Container(
+                width: 3,
+                decoration: BoxDecoration(
+                  color: barColor,
+                  borderRadius: BorderRadius.circular(1.5),
+                ),
+              ),
+              const SizedBox(width: SatoriTheme.spacingM),
+              // 内容
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(SatoriTheme.spacingM),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : Colors.white.withValues(alpha: 0.8),
+                    borderRadius:
+                        BorderRadius.circular(SatoriTheme.cornerMedium),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$minutes 分钟 · ${session.mode == FocusMode.countdown ? '倒计时' : '正计时'}',
+                        style: SatoriTypography.body.copyWith(color: textColor),
+                      ),
+                      if (session.taskTag != null &&
+                          session.taskTag!.isNotEmpty) ...[
+                        const SizedBox(height: SatoriTheme.spacingXS),
+                        Text(
+                          session.taskTag!,
+                          style: SatoriTypography.caption.copyWith(
+                            color: SatoriColors.verdigris,
+                          ),
+                        ),
+                      ],
+                      if (session.summaryNote != null &&
+                          session.summaryNote!.isNotEmpty) ...[
+                        const SizedBox(height: SatoriTheme.spacingXS),
+                        Text(
+                          session.summaryNote!,
+                          style: SatoriTypography.caption
+                              .copyWith(color: subColor),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      if (session.reflectionMood != null) ...[
+                        const SizedBox(height: SatoriTheme.spacingXS),
+                        Text(
+                          _moodLabel(session.reflectionMood!),
+                          style: SatoriTypography.caption.copyWith(
+                            color: SatoriColors.stringGold,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

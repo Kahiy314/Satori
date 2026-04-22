@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../core/config/supabase_config.dart';
+import '../../services/auth_controller.dart';
 import '../../services/entitlement_controller.dart';
 import '../../core/components/section_page_header.dart';
 import '../../core/theme/theme.dart';
+import 'auth_sheet.dart';
 
 /// 设置页 — U3
 ///
@@ -10,12 +13,16 @@ import '../../core/theme/theme.dart';
 /// 品茗在此保留会员与权益入口（双重露出 U6）。
 class SettingsView extends StatelessWidget {
   final VoidCallback? onTeaTap;
+  final AuthController authController;
+  final Future<void> Function()? onAuthenticated;
   final EntitlementController entitlementController;
   static const _appVersion = 'v1.0.0';
 
   const SettingsView({
     super.key,
     this.onTeaTap,
+    required this.authController,
+    this.onAuthenticated,
     required this.entitlementController,
   });
 
@@ -51,10 +58,14 @@ class SettingsView extends StatelessWidget {
               children: [
                 _SettingsRow(
                   icon: Icons.person_outline,
-                  label: '登录 / 注册',
+                  label: authController.accountLabel,
                   textColor: textColor,
                   subColor: subColor,
-                  onTap: () {},
+                  trailing: _AccountStatusBadge(
+                    label: authController.statusLabel,
+                    status: authController.status,
+                  ),
+                  onTap: () => _handleAuthTap(context),
                 ),
               ],
             ),
@@ -180,6 +191,116 @@ class SettingsView extends StatelessWidget {
     );
   }
 
+  Future<void> _handleAuthTap(BuildContext context) async {
+    if (!authController.isAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(SupabaseConfig.missingConfigurationHint)),
+      );
+      return;
+    }
+
+    if (authController.isSignedIn) {
+      await _showAccountActions(context);
+      return;
+    }
+
+    authController.clearMessages();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AuthSheet(authController: authController),
+    );
+
+    if (authController.isSignedIn) {
+      await onAuthenticated?.call();
+    }
+  }
+
+  Future<void> _showAccountActions(BuildContext context) async {
+    final email = authController.currentEmail ?? '当前账号';
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF1E1E20) : Colors.white;
+        return Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(SatoriTheme.spacingL),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: SatoriTheme.spacingL),
+                  Text('账号管理', style: SatoriTypography.title),
+                  const SizedBox(height: SatoriTheme.spacingXS),
+                  Text(
+                    email,
+                    style: SatoriTypography.caption.copyWith(
+                      color: Colors.grey.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: SatoriTheme.spacingL),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.mail_outline),
+                    title: const Text('发送重置密码邮件'),
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      final success = await authController.sendPasswordReset(
+                        email,
+                      );
+                      if (!context.mounted) return;
+                      final message = success
+                          ? (authController.infoMessage ?? '重置密码邮件已发送')
+                          : (authController.errorMessage ?? '发送失败');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(message)),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.logout),
+                    title: const Text('退出登录'),
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      await authController.signOut();
+                      if (!context.mounted) return;
+                      final message = authController.infoMessage ??
+                          authController.errorMessage ??
+                          '退出登录完成';
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(message)),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _handleDeveloperModeTap(BuildContext context) async {
     if (entitlementController.isDeveloperModeEnabled) {
       final shouldDisable = await showDialog<bool>(
@@ -277,6 +398,35 @@ class _DeveloperModeBadge extends StatelessWidget {
   }
 }
 
+class _AccountStatusBadge extends StatelessWidget {
+  final String label;
+  final AuthViewState status;
+
+  const _AccountStatusBadge({required this.label, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (status) {
+      AuthViewState.unavailable => Colors.grey,
+      AuthViewState.signedOut => Colors.grey,
+      AuthViewState.signingIn => SatoriColors.teaAmber,
+      AuthViewState.signedIn => SatoriColors.verdigris,
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+      ),
+      child: Text(
+        label,
+        style: SatoriTypography.caption.copyWith(color: color),
+      ),
+    );
+  }
+}
+
 class _SectionHeader extends StatelessWidget {
   final String title;
   final Color color;
@@ -347,6 +497,8 @@ class _SettingsRow extends StatelessWidget {
               child: Text(
                 label,
                 style: SatoriTypography.body.copyWith(color: textColor),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (trailing != null) trailing!,

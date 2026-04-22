@@ -15,7 +15,8 @@ class StatsOverviewSection extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.06)
         : Colors.white.withValues(alpha: 0.8);
     final textColor = isDark ? Colors.white : SatoriColors.inkSmoke;
-    final subColor = isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
+    final subColor =
+        isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
@@ -97,10 +98,10 @@ class StatsOverviewSection extends StatelessWidget {
 
   String _formatDuration(double seconds) {
     final totalMinutes = seconds ~/ 60;
-    if (totalMinutes < 60) return '${totalMinutes}分';
+    if (totalMinutes < 60) return '$totalMinutes分';
     final hours = totalMinutes ~/ 60;
     final mins = totalMinutes % 60;
-    return mins > 0 ? '$hours时${mins}分' : '$hours时';
+    return mins > 0 ? '$hours时$mins分' : '$hours时';
   }
 }
 

@@ -10,8 +10,13 @@ import 'stats_history_section.dart';
 /// 热力图与年趋势放后续小版本。
 class StatsView extends StatefulWidget {
   final StatsAggregator aggregator;
+  final Future<void> Function()? syncWithCloud;
 
-  const StatsView({super.key, required this.aggregator});
+  const StatsView({
+    super.key,
+    required this.aggregator,
+    this.syncWithCloud,
+  });
 
   @override
   State<StatsView> createState() => _StatsViewState();
@@ -35,6 +40,7 @@ class _StatsViewState extends State<StatsView> {
   }
 
   Future<void> _loadData() async {
+    await widget.syncWithCloud?.call();
     final overview = await widget.aggregator.overview();
     if (!mounted) return;
     setState(() {
@@ -78,7 +84,8 @@ class _StatsViewState extends State<StatsView> {
                         child: Text(
                           '历史记录',
                           style: SatoriTypography.title.copyWith(
-                            color: isDark ? Colors.white70 : SatoriColors.inkSmoke,
+                            color:
+                                isDark ? Colors.white70 : SatoriColors.inkSmoke,
                           ),
                         ),
                       ),

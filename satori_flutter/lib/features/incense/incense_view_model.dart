@@ -56,9 +56,9 @@ class IncenseViewModel extends ChangeNotifier {
   // ── 预设时长 ──
   static const presets = [
     (label: '一炷短香', minutes: 15),
-    (label: '一炷香',  minutes: 25),
+    (label: '一炷香', minutes: 25),
     (label: '一炷长香', minutes: 45),
-    (label: '一坐禅',  minutes: 60),
+    (label: '一坐禅', minutes: 60),
   ];
 
   Timer? _timer;
@@ -188,6 +188,19 @@ class IncenseViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 倒计时模式下用户主动完成本次专注 → completed
+  void completeCountdown() {
+    if (state != TimerState.running && state != TimerState.paused) return;
+    if (timerMode != TimerMode.countdown) return;
+    if (_startDate != null && state == TimerState.paused) {
+      _startDate = DateTime.now();
+    }
+    _timer?.cancel();
+    state = TimerState.completed;
+    _finalizeSession(SessionStatus.completed);
+    notifyListeners();
+  }
+
   void switchMode(TimerMode mode) {
     if (mode == timerMode) return;
     if (state != TimerState.idle) reset();
@@ -238,9 +251,8 @@ class IncenseViewModel extends ChangeNotifier {
     if (_activityUpdateCounter >= 20) {
       _activityUpdateCounter = 0;
       _focusActivityService?.updateActivity(
-        remainingOrElapsed: timerMode == TimerMode.countdown
-            ? remainingTime
-            : elapsedTime,
+        remainingOrElapsed:
+            timerMode == TimerMode.countdown ? remainingTime : elapsedTime,
       );
     }
 
@@ -259,8 +271,7 @@ class IncenseViewModel extends ChangeNotifier {
 
   /// 判定是否低于最短有效阈值
   bool get _isBelowMinThreshold =>
-      _currentActualDuration <
-      FocusConstants.minEffectiveDurationSeconds;
+      _currentActualDuration < FocusConstants.minEffectiveDurationSeconds;
 
   /// 结束会话并落账
   Future<void> _finalizeSession(SessionStatus status) async {

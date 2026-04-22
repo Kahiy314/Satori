@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satori/core/models/focus_session.dart';
 import 'package:satori/core/models/focus_constants.dart';
-import 'package:satori/services/local_session_repository.dart';
 import 'package:satori/services/local_stats_aggregator.dart';
 import 'package:satori/services/session_repository.dart';
-import 'package:satori/services/stats_aggregator.dart';
 
 /// In-memory mock repository for testing （不依赖 shared_preferences）。
 class InMemorySessionRepository implements SessionRepository {
@@ -31,9 +29,7 @@ class InMemorySessionRepository implements SessionRepository {
 
   @override
   Future<List<FocusSession>> findAllCounted() async {
-    return _sessions
-        .where((s) => s.isCountedInHistory)
-        .toList()
+    return _sessions.where((s) => s.isCountedInHistory).toList()
       ..sort((a, b) => b.startAt.compareTo(a.startAt));
   }
 
@@ -128,7 +124,8 @@ void main() {
     });
 
     test('save 和 findById', () async {
-      final session = _makeSession('s1', duration: 600, status: SessionStatus.completed);
+      final session =
+          _makeSession('s1', duration: 600, status: SessionStatus.completed);
       await repo.save(session);
       final found = await repo.findById('s1');
       expect(found, isNotNull);
@@ -136,7 +133,8 @@ void main() {
     });
 
     test('save 更新已有记录', () async {
-      final session = _makeSession('s1', duration: 600, status: SessionStatus.completed);
+      final session =
+          _makeSession('s1', duration: 600, status: SessionStatus.completed);
       await repo.save(session);
       final updated = session.copyWith(summaryNote: '更新备注');
       await repo.save(updated);
@@ -172,12 +170,12 @@ void main() {
     });
 
     test('findByDateRange 按日期范围过滤', () async {
-      await repo.save(_makeSession('s1', duration: 600,
-          start: DateTime(2026, 3, 14, 10, 0)));
-      await repo.save(_makeSession('s2', duration: 600,
-          start: DateTime(2026, 3, 15, 10, 0)));
-      await repo.save(_makeSession('s3', duration: 600,
-          start: DateTime(2026, 3, 16, 10, 0)));
+      await repo.save(_makeSession('s1',
+          duration: 600, start: DateTime(2026, 3, 14, 10, 0)));
+      await repo.save(_makeSession('s2',
+          duration: 600, start: DateTime(2026, 3, 15, 10, 0)));
+      await repo.save(_makeSession('s3',
+          duration: 600, start: DateTime(2026, 3, 16, 10, 0)));
 
       final result = await repo.findByDateRange(
         DateTime(2026, 3, 15),
@@ -204,13 +202,16 @@ void main() {
     });
 
     test('completed / abandoned / interrupted 统计正确', () async {
-      await repo.save(_makeSession('s1', duration: 1500,
+      await repo.save(_makeSession('s1',
+          duration: 1500,
           status: SessionStatus.completed,
           start: DateTime(2026, 3, 16, 10, 0)));
-      await repo.save(_makeSession('s2', duration: 600,
+      await repo.save(_makeSession('s2',
+          duration: 600,
           status: SessionStatus.abandoned,
           start: DateTime(2026, 3, 16, 14, 0)));
-      await repo.save(_makeSession('s3', duration: 300,
+      await repo.save(_makeSession('s3',
+          duration: 300,
           status: SessionStatus.interrupted,
           start: DateTime(2026, 3, 15, 9, 0)));
 
@@ -234,29 +235,29 @@ void main() {
     });
 
     test('dailyStats 填充零值日期', () async {
-      await repo.save(_makeSession('s1', duration: 600,
-          start: DateTime(2026, 3, 14, 10, 0)));
+      await repo.save(_makeSession('s1',
+          duration: 600, start: DateTime(2026, 3, 14, 10, 0)));
       // 3.15 无记录
-      await repo.save(_makeSession('s2', duration: 900,
-          start: DateTime(2026, 3, 16, 10, 0)));
+      await repo.save(_makeSession('s2',
+          duration: 900, start: DateTime(2026, 3, 16, 10, 0)));
 
       final daily = await agg.dailyStats(
         DateTime(2026, 3, 14),
         DateTime(2026, 3, 16),
       );
       expect(daily.length, 3);
-      expect(daily[0].totalDuration, 600);  // 3.14
-      expect(daily[1].totalDuration, 0);    // 3.15 zero-fill
-      expect(daily[2].totalDuration, 900);  // 3.16
+      expect(daily[0].totalDuration, 600); // 3.14
+      expect(daily[1].totalDuration, 0); // 3.15 zero-fill
+      expect(daily[2].totalDuration, 900); // 3.16
     });
 
     test('sessionsForDay 返回当天会话', () async {
-      await repo.save(_makeSession('s1', duration: 600,
-          start: DateTime(2026, 3, 16, 10, 0)));
-      await repo.save(_makeSession('s2', duration: 600,
-          start: DateTime(2026, 3, 16, 14, 0)));
-      await repo.save(_makeSession('s3', duration: 600,
-          start: DateTime(2026, 3, 15, 10, 0)));
+      await repo.save(_makeSession('s1',
+          duration: 600, start: DateTime(2026, 3, 16, 10, 0)));
+      await repo.save(_makeSession('s2',
+          duration: 600, start: DateTime(2026, 3, 16, 14, 0)));
+      await repo.save(_makeSession('s3',
+          duration: 600, start: DateTime(2026, 3, 15, 10, 0)));
 
       final sessions = await agg.sessionsForDay(DateTime(2026, 3, 16));
       expect(sessions.length, 2);
@@ -264,8 +265,8 @@ void main() {
 
     test('跨天边界验证', () async {
       // 23:50 开始，0:10 结束的会话
-      await repo.save(_makeSession('cross', duration: 1200,
-          start: DateTime(2026, 3, 15, 23, 50)));
+      await repo.save(_makeSession('cross',
+          duration: 1200, start: DateTime(2026, 3, 15, 23, 50)));
 
       // 按 startAt 日期归属 3.15
       final daily15 = await agg.sessionsForDay(DateTime(2026, 3, 15));

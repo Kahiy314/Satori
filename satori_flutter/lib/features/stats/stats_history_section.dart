@@ -3,6 +3,7 @@ import '../../core/models/focus_session.dart';
 import '../../core/theme/theme.dart';
 import '../../services/stats_aggregator.dart';
 import 'stats_day_timeline_view.dart';
+import 'stats_session_detail_view.dart';
 
 /// 历史记录列表（Sliver 形式）。
 class StatsHistorySection extends StatefulWidget {
@@ -81,10 +82,19 @@ class _StatsHistorySectionState extends State<StatsHistorySection> {
           final session = _sessions[index];
           return _HistoryTile(
             session: session,
-            onTap: () => _showDayTimeline(session.startAt),
+            onTap: () => _showSessionDetail(session),
+            onTimelineTap: () => _showDayTimeline(session.startAt),
           );
         },
         childCount: _sessions.length,
+      ),
+    );
+  }
+
+  void _showSessionDetail(FocusSession session) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => StatsSessionDetailView(session: session),
       ),
     );
   }
@@ -104,14 +114,20 @@ class _StatsHistorySectionState extends State<StatsHistorySection> {
 class _HistoryTile extends StatelessWidget {
   final FocusSession session;
   final VoidCallback onTap;
+  final VoidCallback onTimelineTap;
 
-  const _HistoryTile({required this.session, required this.onTap});
+  const _HistoryTile({
+    required this.session,
+    required this.onTap,
+    required this.onTimelineTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : SatoriColors.inkSmoke;
-    final subColor = isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
+    final subColor =
+        isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
 
     final statusIcon = switch (session.status) {
       SessionStatus.completed => Icons.check_circle_outline,
@@ -164,9 +180,24 @@ class _HistoryTile extends StatelessWidget {
         timeStr,
         style: SatoriTypography.caption.copyWith(color: subColor),
       ),
-      trailing: session.summaryNote != null && session.summaryNote!.isNotEmpty
-          ? Icon(Icons.note_outlined, size: 16, color: subColor)
-          : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (session.summaryNote != null && session.summaryNote!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(Icons.note_outlined, size: 16, color: subColor),
+            ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            onPressed: onTimelineTap,
+            icon: Icon(Icons.timeline, size: 18, color: subColor),
+            tooltip: '查看当日时间轴',
+          ),
+        ],
+      ),
     );
   }
 }

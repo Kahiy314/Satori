@@ -29,6 +29,12 @@ class FocusSession {
   /// 会话创建时间（进入 idle 或 start 前的时间戳）
   final DateTime createdAt;
 
+  /// 当前归属用户；未登录时为空。
+  final String? userId;
+
+  /// 最后一次本地或云端更新时间，用于同步冲突判定。
+  final DateTime? updatedAt;
+
   // ── 可选字段：标签、小结、复盘 ──
 
   /// 用户为本次专注添加的任务标签
@@ -53,6 +59,8 @@ class FocusSession {
     required this.mode,
     required this.status,
     required this.createdAt,
+    this.userId,
+    this.updatedAt,
     this.taskTag,
     this.summaryNote,
     this.reflectionMood,
@@ -72,6 +80,10 @@ class FocusSession {
       mode: FocusMode.values.byName(json['mode'] as String),
       status: SessionStatus.values.byName(json['status'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
+      userId: json['userId'] as String?,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
       taskTag: json['taskTag'] as String?,
       summaryNote: json['summaryNote'] as String?,
       reflectionMood: json['reflectionMood'] != null
@@ -92,6 +104,8 @@ class FocusSession {
       'mode': mode.name,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      'userId': userId,
+      'updatedAt': updatedAt?.toIso8601String(),
       'taskTag': taskTag,
       'summaryNote': summaryNote,
       'reflectionMood': reflectionMood?.name,
@@ -109,6 +123,8 @@ class FocusSession {
     FocusMode? mode,
     SessionStatus? status,
     DateTime? createdAt,
+    String? userId,
+    DateTime? updatedAt,
     String? taskTag,
     String? summaryNote,
     ReflectionMood? reflectionMood,
@@ -123,6 +139,8 @@ class FocusSession {
       mode: mode ?? this.mode,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      userId: userId ?? this.userId,
+      updatedAt: updatedAt ?? this.updatedAt,
       taskTag: taskTag ?? this.taskTag,
       summaryNote: summaryNote ?? this.summaryNote,
       reflectionMood: reflectionMood ?? this.reflectionMood,

@@ -454,40 +454,59 @@ class _CountdownLayout extends StatelessWidget {
   }
 
   Widget _buildPausedRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        GestureDetector(
-          onTap: () {
-            HapticService.instance.lightTap();
-            vm.start();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: SatoriColors.incenseEmber.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                HapticService.instance.lightTap();
+                vm.start();
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: SatoriColors.incenseEmber.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+                ),
+                child: Text('继续',
+                    style: SatoriTypography.caption
+                        .copyWith(color: SatoriColors.incenseEmber)),
+              ),
             ),
-            child: Text('继续',
-                style: SatoriTypography.caption
-                    .copyWith(color: SatoriColors.incenseEmber)),
-          ),
+            const SizedBox(width: SatoriTheme.spacingL),
+            GestureDetector(
+              onTap: () {
+                HapticService.instance.lightTap();
+                vm.reset();
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+                ),
+                child: Text('放弃',
+                    style: SatoriTypography.caption
+                        .copyWith(color: Colors.grey.withValues(alpha: 0.5))),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: SatoriTheme.spacingL),
+        const SizedBox(height: SatoriTheme.spacingM),
         GestureDetector(
           onTap: () {
             HapticService.instance.lightTap();
-            vm.reset();
+            vm.completeCountdown();
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(SatoriTheme.cornerPill),
+          child: Text(
+            '完成本次专注',
+            style: SatoriTypography.caption.copyWith(
+              color: SatoriColors.incenseEmber.withValues(alpha: 0.6),
             ),
-            child: Text('结束',
-                style: SatoriTypography.caption
-                    .copyWith(color: Colors.grey.withValues(alpha: 0.5))),
           ),
         ),
       ],
@@ -600,7 +619,6 @@ class _CountUpLayoutState extends State<_CountUpLayout> {
   Widget build(BuildContext context) {
     final vm = widget.vm;
     final onAction = widget.onAction;
-    final onTagInput = widget.onTagInput;
     final isRunning = vm.state == TimerState.running;
     final isPaused = vm.state == TimerState.paused;
     final isIdle = vm.state == TimerState.idle;
@@ -1188,9 +1206,9 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
     if (mins >= 60) {
       final hrs = mins ~/ 60;
       final remainMins = mins % 60;
-      return '$hrs小时${remainMins}分钟';
+      return '$hrs小时$remainMins分钟';
     }
-    if (mins > 0) return '$mins分${remainSecs}秒';
+    if (mins > 0) return '$mins分$remainSecs秒';
     return '$remainSecs秒';
   }
 

@@ -147,6 +147,7 @@ class _StatsPageWrapper extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return StatsView(
       aggregator: ref.watch(statsAggregatorProvider),
+      syncWithCloud: ref.watch(supabaseSessionRepositoryProvider).syncWithCloud,
     );
   }
 }
@@ -171,6 +172,9 @@ class _SettingsPageWrapper extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SettingsView(
       onTeaTap: onTeaTap,
+      authController: ref.watch(authControllerProvider),
+      onAuthenticated:
+          ref.watch(supabaseSessionRepositoryProvider).syncWithCloud,
       entitlementController: ref.watch(entitlementControllerProvider),
     );
   }

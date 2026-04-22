@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/content_view.dart';
+import 'services/supabase_bootstrap.dart';
 import 'services/timer_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   TimerService.instance.init();
+  await SupabaseBootstrap.initialize();
 
   runApp(
     const ProviderScope(

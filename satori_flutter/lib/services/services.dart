@@ -1,4 +1,5 @@
 export 'audio_service.dart';
+export 'auth_controller.dart';
 export 'entitlement_controller.dart';
 export 'focus_activity_service.dart';
 export 'haptic_service.dart';
@@ -10,5 +11,7 @@ export 'platform_focus_activity_service.dart';
 export 'platform_media_session_service.dart';
 export 'session_repository.dart';
 export 'stats_aggregator.dart';
+export 'supabase_bootstrap.dart';
+export 'supabase_session_repository.dart';
 export 'timer_service.dart';
 export 'user_preferences.dart';

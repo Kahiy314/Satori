@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satori/features/incense/incense_view_model.dart';
 import 'package:satori/core/models/focus_session.dart';
-import 'package:satori/core/models/focus_constants.dart';
 import 'package:satori/services/session_repository.dart';
 import 'package:satori/services/user_preferences.dart';
 
@@ -16,7 +15,8 @@ class _MockRepo implements SessionRepository {
   @override
   Future<List<FocusSession>> findAllCounted() async => [];
   @override
-  Future<List<FocusSession>> findByDateRange(DateTime f, DateTime t) async => [];
+  Future<List<FocusSession>> findByDateRange(DateTime f, DateTime t) async =>
+      [];
   @override
   Future<List<FocusSession>> findUncounted() async => [];
   @override
@@ -146,6 +146,23 @@ void main() {
       expect(events, contains(IncenseSessionEvent.completed));
       expect(repo.saved.last.status, SessionStatus.completed);
       expect(repo.saved.last.mode, FocusMode.countUp);
+    });
+
+    test('倒计时 completeCountdown 触发 completed 并复用总结流', () async {
+      final events = <IncenseSessionEvent>[];
+      vm.sessionEvents.listen(events.add);
+
+      vm.start();
+      await Future.delayed(const Duration(milliseconds: 200));
+      vm.pause();
+      await Future.delayed(const Duration(milliseconds: 50));
+      vm.completeCountdown();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(events, contains(IncenseSessionEvent.completed));
+      expect(repo.saved.last.status, SessionStatus.completed);
+      expect(repo.saved.last.mode, FocusMode.countdown);
+      expect(vm.lastFinishedSession, isNotNull);
     });
   });
 }

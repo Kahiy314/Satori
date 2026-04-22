@@ -33,6 +33,11 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Local environment and Supabase CLI temp files
+.env
+.env.*
+/supabase/.temp/
+
 # Symbolication related
 app.*.symbols
 
