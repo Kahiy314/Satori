@@ -1,0 +1,257 @@
+/* 日历页面样式 */
+.calendar-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  padding: 30rpx;
+}
+
+/* ========== 月份导航 ========== */
+.month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20rpx 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.nav-btn {
+  width: 70rpx;
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f4e9;
+  border: 1px solid #d4a373;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:active {
+  background: #e8dfd3;
+  transform: scale(0.95);
+}
+
+.nav-icon {
+  font-size: 40rpx;
+  color: #d4a373;
+  font-weight: bold;
+}
+
+.month-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.year-text {
+  font-size: 24rpx;
+  color: #8c7b6c;
+  margin-bottom: 5rpx;
+}
+
+.month-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+}
+
+/* ========== 星期标题 ========== */
+.week-header {
+  display: flex;
+  margin-bottom: 15rpx;
+  padding: 0 10rpx;
+}
+
+.week-day {
+  flex: 1;
+  text-align: center;
+  font-size: 26rpx;
+  color: #8c7b6c;
+  padding: 15rpx 0;
+  font-weight: 500;
+}
+
+/* ========== 日历网格 ========== */
+.calendar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 15rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+  margin-bottom: 30rpx;
+}
+
+.calendar-day {
+  width: calc(100% / 7);
+  height: 90rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.day-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.day-number {
+  font-size: 28rpx;
+  color: #5d4037;
+  margin-bottom: 6rpx;
+}
+
+.calendar-day.today .day-number {
+  background: #d4a373;
+  color: white;
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 28rpx;
+  margin-bottom: 4rpx;
+}
+
+.status-indicator {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #e0e0e0;
+}
+
+.status-indicator.checked {
+  background: #4caf50;
+}
+
+.status-indicator.unchecked {
+  background: #e0e0e0;
+}
+
+/* ========== 今日任务总结 ========== */
+.today-summary {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 25rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.summary-title {
+  font-size: 28rpx;
+  color: #5d4037;
+  margin-bottom: 18rpx;
+  font-weight: bold;
+}
+
+.progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12rpx;
+  background: #e8e0d0;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4a373, #b08c5a);
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 26rpx;
+  color: #8c7b6c;
+}
+
+/* ========== 打卡按钮 ========== */
+.checkin-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30rpx;
+}
+
+.checkin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 60rpx;
+  background: linear-gradient(135deg, #d4a373 0%, #b08c5a 100%);
+  color: white;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  box-shadow: 0 6rpx 20rpx rgba(212, 163, 115, 0.4);
+  transition: all 0.3s ease;
+}
+
+.checkin-btn:active {
+  transform: scale(0.98);
+}
+
+.checkin-btn.disabled {
+  background: #c8bfb0;
+  box-shadow: none;
+}
+
+.checkin-btn.checked {
+  background: #66bb6a;
+  box-shadow: 0 6rpx 20rpx rgba(102, 187, 106, 0.4);
+}
+
+.checkin-icon {
+  font-size: 36rpx;
+  margin-right: 12rpx;
+}
+
+.checkin-text {
+  font-size: 30rpx;
+}
+
+/* ========== 状态说明 ========== */
+.status-legend {
+  display: flex;
+  justify-content: center;
+  gap: 50rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #8c7b6c;
+}
+
+.legend-dot {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  margin-right: 10rpx;
+}
+
+.legend-dot.checked {
+  background: #4caf50;
+}
+
+.legend-dot.unchecked {
+  background: #e0e0e0;
+}

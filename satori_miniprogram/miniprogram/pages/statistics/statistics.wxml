@@ -1,0 +1,82 @@
+<!-- 统计页面 -->
+<view class="statistics-page">
+  <!-- 数据看板 -->
+  <view class="stats-board">
+    <view class="board-title">📊 数据看板</view>
+
+    <!-- 数据表格（三等分） -->
+    <view class="stats-table">
+      <view class="stats-table-row">
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.todayFocus}}</view>
+          <view class="cell-label">今日专注</view>
+          <view class="cell-unit">分钟</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.todayTasks}}</view>
+          <view class="cell-label">今日完成</view>
+          <view class="cell-unit">个</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.weekFocus}}</view>
+          <view class="cell-label">本周专注</view>
+          <view class="cell-unit">分钟</view>
+        </view>
+      </view>
+      <view class="stats-table-divider"></view>
+      <view class="stats-table-row">
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.weekTasks}}</view>
+          <view class="cell-label">本周完成</view>
+          <view class="cell-unit">个</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.totalFocus}}</view>
+          <view class="cell-label">总专注</view>
+          <view class="cell-unit">分钟</view>
+        </view>
+        <view class="stats-table-cell">
+          <view class="cell-value">{{statsData.totalTasks}}</view>
+          <view class="cell-label">总任务</view>
+          <view class="cell-unit">个</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 专注趋势图 -->
+  <view class="trend-section">
+    <view class="section-title">📈 近7天专注趋势</view>
+    <view class="trend-chart">
+      <!-- Y轴刻度 -->
+      <view class="chart-y-axis">
+        <text class="y-label" wx:for="{{yAxisLabels}}" wx:key="index">{{item}}</text>
+      </view>
+
+      <!-- 图表主体 -->
+      <view class="trend-chart-body">
+        <!-- 画布 -->
+        <canvas class="chart-canvas" canvas-id="trendCanvas" style="width:295px;height:135px" />
+
+        <!-- 日期标签 -->
+        <view class="chart-x-axis">
+          <text class="x-label" wx:for="{{trendData}}" wx:key="index" style="left: {{item.xPercent}}%">{{item.day}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI学习总结 -->
+  <view class="ai-section">
+    <view class="section-title">🤖 AI学习总结</view>
+    <view class="ai-card">
+      <view class="ai-content">{{aiSummary.content}}</view>
+      <view class="ai-footer">
+        <text class="update-time">更新于：{{aiSummary.lastUpdate}}</text>
+        <view class="refresh-btn" bindtap="refreshAI">
+          🔄 刷新
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

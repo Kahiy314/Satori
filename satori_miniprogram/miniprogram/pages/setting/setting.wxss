@@ -1,0 +1,247 @@
+/* 设置页面样式 */
+.setting-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  padding: 30rpx;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+/* 设置区块 */
+.setting-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 25rpx;
+}
+
+/* 主题选项 */
+.theme-options {
+  display: flex;
+  justify-content: space-between;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 20rpx;
+  background: #f8f4e9;
+  border: 1px solid #e8e0d0;
+  border-radius: 15rpx;
+  flex: 1;
+  margin: 0 8rpx;
+  transition: all 0.3s ease;
+}
+
+.theme-option:first-child {
+  margin-left: 0;
+}
+
+.theme-option:last-child {
+  margin-right: 0;
+}
+
+.theme-option.selected {
+  background: #d4a373;
+  border-color: #b08c5a;
+}
+
+.option-radio {
+  width: 30rpx;
+  height: 30rpx;
+  border: 2px solid #8c7b6c;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.option-radio.selected {
+  border-color: white;
+}
+
+.option-radio.selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16rpx;
+  height: 16rpx;
+  background: white;
+  border-radius: 50%;
+}
+
+.option-label {
+  font-size: 24rpx;
+  color: #5d4037;
+  white-space: nowrap;
+}
+
+.theme-option.selected .option-label {
+  color: white;
+}
+
+/* 下拉选择器 */
+.dropdown-select {
+  margin-bottom: 15rpx;
+}
+
+.select-current {
+  background: #f8f4e9;
+  border: 1px solid #e8e0d0;
+  border-radius: 15rpx;
+  padding: 22rpx 25rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.current-text {
+  font-size: 26rpx;
+  color: #5d4037;
+}
+
+.dropdown-icon {
+  font-size: 20rpx;
+  color: #8c7b6c;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  border: 1px solid #e8e0d0;
+  border-radius: 0 0 15rpx 15rpx;
+  border-top: none;
+  background: white;
+}
+
+.dropdown-options.open {
+  max-height: 500rpx;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 25rpx;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.dropdown-option.selected {
+  background: #f8f4e9;
+}
+
+.option-icon {
+  font-size: 28rpx;
+  margin-right: 15rpx;
+}
+
+.option-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #5d4037;
+}
+
+.options-hint {
+  font-size: 22rpx;
+  color: #a1887f;
+  margin-top: 12rpx;
+  padding-left: 5rpx;
+}
+
+/* 时长控制 */
+.duration-control {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.control-wrapper {
+  display: flex;
+  align-items: center;
+  background: #f8f4e9;
+  border: 1px solid #e8e0d0;
+  border-radius: 20rpx;
+  padding: 8rpx 12rpx;
+  overflow: hidden;
+}
+
+.control-btn {
+  width: 48rpx;
+  height: 48rpx;
+  background: #d4a373;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.control-btn:active {
+  background: #b08c5a;
+}
+
+.btn-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+}
+
+.duration-display {
+  display: flex;
+  align-items: baseline;
+  margin: 0 20rpx;
+}
+
+.duration-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-right: 8rpx;
+  min-width: 40rpx;
+  text-align: center;
+}
+
+.duration-unit {
+  font-size: 24rpx;
+  color: #8c7b6c;
+}
+
+/* 关于信息 */
+.about-info {
+  padding: 10rpx 0;
+}
+
+.version {
+  font-size: 26rpx;
+  color: #8c7b6c;
+}

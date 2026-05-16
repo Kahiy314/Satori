@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "quote-modal": "/components/quote-modal/quote-modal"
+  }
+}

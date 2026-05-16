@@ -1,0 +1,60 @@
+<!-- 焚香动画组件 -->
+<!--
+  图片放置说明：
+  请将香炉图片放入 miniprogram/assets/images/ 目录
+
+  1. 香炉图片（必须）
+     文件名：incense-burner.png
+     尺寸：建议 300×300 像素（px），宽高比约 1:1
+     要求：香炉主体居中，顶部留出插入香的空间（上方至少留 150px 空白）
+     格式：PNG（支持透明背景）
+
+  2. 可选：香图片（可选，如需更精细效果）
+     文件名：incense-stick.png
+     尺寸：建议 20×200 像素（px）
+     要求：细长香棒，可带纹理
+
+  组件会自动在香炉上方渲染香棒（CSS 实现），
+  火焰效果跟随燃烧线（progress=0 在顶部，progress=100 在底部）。
+-->
+<view class="incense-container {{active ? 'active' : ''}}">
+  <!-- 香棒燃烧区域 -->
+  <view class="stick-section">
+    <!-- 香棒本体 -->
+    <view class="stick-wrapper">
+      <!-- 燃尽区域（灰色，位于顶部，跟随火焰） -->
+      <view
+        class="stick-burned"
+        style="height: {{progress}}%; transition: {{burnedTransition}}"
+      ></view>
+      <!-- 未燃区域（棕色，位于底部） -->
+      <view
+        class="stick-remaining"
+        style="height: {{100 - progress}}%"
+      ></view>
+    </view>
+
+    <!-- 火焰效果（位于燃烧线：随 progress 从顶部往底部移动） -->
+    <view
+      class="flame-wrapper"
+      style="top: {{progress}}%; transition: {{flameTransition}}"
+    >
+      <view class="flame flame-1"></view>
+      <view class="flame flame-2"></view>
+      <view class="flame flame-3"></view>
+      <!-- 火星 -->
+      <view class="spark" style="animation-delay: 0.1s"></view>
+      <view class="spark" style="animation-delay: 0.4s"></view>
+      <view class="spark" style="animation-delay: 0.7s"></view>
+    </view>
+  </view>
+
+  <!-- 香炉图片 -->
+  <view class="burner-section">
+    <image
+      class="burner-img"
+      src="/assets/images/incense-burner.png"
+      mode="aspectFit"
+    />
+  </view>
+</view>

@@ -1,0 +1,256 @@
+/* 番茄计时页面样式 */
+.tomato-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f4e9 0%, #f0e6d6 100%);
+  position: relative;
+}
+
+/* ========== 返回按钮 ========== */
+.back-btn {
+  display: flex;
+  align-items: center;
+  padding: 25rpx 30rpx 10rpx;
+}
+
+.back-icon {
+  font-size: 32rpx;
+  color: #8c7b6c;
+  margin-right: 10rpx;
+}
+
+.back-text {
+  font-size: 28rpx;
+  color: #8c7b6c;
+}
+
+/* ========== 模式容器 ========== */
+.mode-container {
+  display: none;
+  padding: 0 30rpx 30rpx;
+  min-height: calc(100vh - 80rpx);
+}
+
+.mode-container.active {
+  display: block;
+}
+
+/* ========== 休息图标 ========== */
+.rest-icon {
+  font-size: 120rpx;
+  text-align: center;
+  margin: 30rpx 0;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ========== 任务信息 ========== */
+.task-info-block {
+  text-align: center;
+  margin: 30rpx 0;
+}
+
+.task-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.task-icon-label {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.task-name-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #5d4037;
+}
+
+.tomato-cycle {
+  font-size: 28rpx;
+  color: #8c7b6c;
+  margin-bottom: 15rpx;
+}
+
+.time-display {
+  margin: 20rpx 0;
+}
+
+.time-value {
+  font-size: 96rpx;
+  font-weight: bold;
+  color: #5d4037;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 4rpx;
+}
+
+/* ========== 控制按钮 ========== */
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 30rpx;
+  margin: 40rpx 0 30rpx;
+}
+
+.ctrl-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 25rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e8e0d0;
+  box-shadow: 0 4rpx 15rpx rgba(140, 123, 108, 0.1);
+  transition: all 0.3s ease;
+}
+
+.ctrl-btn:active {
+  transform: scale(0.95);
+}
+
+.ctrl-icon {
+  font-size: 44rpx;
+  margin-bottom: 8rpx;
+}
+
+.ctrl-text {
+  font-size: 22rpx;
+  color: #5d4037;
+}
+
+.ctrl-btn.pause {
+  background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+  border-color: #66bb6a;
+}
+
+.ctrl-btn.pause .ctrl-text {
+  color: white;
+}
+
+.ctrl-btn.resume {
+  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+  border-color: #42a5f5;
+}
+
+.ctrl-btn.resume .ctrl-text {
+  color: white;
+}
+
+.ctrl-btn.end {
+  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+  border-color: #ef5350;
+}
+
+.ctrl-btn.end .ctrl-text {
+  color: white;
+}
+
+.ctrl-btn.skip {
+  background: linear-gradient(135deg, #ff7043 0%, #f4511e 100%);
+  border-color: #ff7043;
+}
+
+.ctrl-btn.skip .ctrl-text {
+  color: white;
+}
+
+.ctrl-btn.sound {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e8e0d0;
+}
+
+.ctrl-btn.sound .ctrl-text {
+  color: #8c7b6c;
+}
+
+.ctrl-btn.sound.on {
+  background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%);
+  border-color: #ab47bc;
+}
+
+.ctrl-btn.sound.on .ctrl-text {
+  color: white;
+}
+
+/* ========== 白噪音信息 ========== */
+.noise-info {
+  text-align: center;
+  margin-top: 20rpx;
+  font-size: 26rpx;
+}
+
+.noise-label {
+  color: #8c7b6c;
+}
+
+.noise-value {
+  color: #d4a373;
+  font-weight: bold;
+}
+
+/* ========== 休息模式 ========== */
+.rest-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 20rpx;
+}
+
+/* ========== 完成任务 ========== */
+.complete-mode {
+  display: none;
+}
+
+.complete-mode.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80rpx);
+}
+
+.complete-section {
+  text-align: center;
+}
+
+.complete-icon {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.complete-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 15rpx;
+}
+
+.complete-subtitle {
+  font-size: 30rpx;
+  color: #8c7b6c;
+  margin-bottom: 15rpx;
+}
+
+.complete-stats {
+  font-size: 26rpx;
+  color: #a1887f;
+  margin-bottom: 40rpx;
+}
+
+.complete-btn {
+  background: linear-gradient(135deg, #d4a373 0%, #b08c5a 100%);
+  color: white;
+  padding: 20rpx 60rpx;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  box-shadow: 0 6rpx 20rpx rgba(212, 163, 115, 0.4);
+}

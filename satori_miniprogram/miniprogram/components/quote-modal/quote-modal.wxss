@@ -1,0 +1,96 @@
+/* 名言弹窗组件 */
+.quote-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.modal-mask.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.modal-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: 85%;
+  max-width: 640rpx;
+  background: white;
+  border-radius: 30rpx;
+  padding: 35rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+  border: 2px solid #d4a373;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.modal-card.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.quote-card {
+  background: #f8f4e9;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 25rpx;
+  border: 1px solid #e8e0d0;
+}
+
+.quote-success {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #d4a373;
+  margin-bottom: 20rpx;
+  text-align: center;
+}
+
+.quote-text {
+  font-size: 28rpx;
+  color: #5d4037;
+  font-style: italic;
+  line-height: 1.8;
+  text-align: center;
+  margin-bottom: 15rpx;
+}
+
+.quote-source {
+  font-size: 24rpx;
+  color: #8c7b6c;
+  text-align: right;
+  margin-top: 10rpx;
+}
+
+.confirm-btn {
+  text-align: center;
+  background: #d4a373;
+  color: white;
+  padding: 20rpx;
+  border-radius: 25rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}

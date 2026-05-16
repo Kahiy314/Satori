@@ -1,0 +1,85 @@
+<!-- 日历页面 -->
+<view class="calendar-page">
+  <!-- 月份导航 -->
+  <view class="month-header">
+    <view class="nav-btn" bindtap="prevMonth">
+      <text class="nav-icon">‹</text>
+    </view>
+    <view class="month-title">
+      <text class="year-text">{{currentYear}}年</text>
+      <text class="month-text">{{currentMonth}}月</text>
+    </view>
+    <view class="nav-btn" bindtap="nextMonth">
+      <text class="nav-icon">›</text>
+    </view>
+  </view>
+
+  <!-- 星期标题 -->
+  <view class="week-header">
+    <view class="week-day" wx:for="{{weekDays}}" wx:key="*this">
+      <text>{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 日历网格 -->
+  <view class="calendar-grid">
+    <view
+      class="calendar-day {{item.status}} {{item.isToday ? 'today' : ''}} {{!item.isCurrentMonth ? 'other-month' : ''}}"
+      wx:for="{{calendarDays}}"
+      wx:key="index"
+    >
+      <view class="day-content">
+        <text class="day-number">{{item.day}}</text>
+        <view class="status-indicator {{item.status}}" wx:if="{{item.isCurrentMonth}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日任务完成情况 -->
+  <view class="today-summary">
+    <view class="summary-title">今日任务完成情况：</view>
+    <view class="progress-wrapper">
+      <view class="progress-bar">
+        <view
+          class="progress-fill"
+          style="width: {{todayProgress}}%"
+        ></view>
+      </view>
+      <text class="progress-text">
+        ✅ 已完成 {{todayTasks.completed}}/{{todayTasks.total}} 个任务
+      </text>
+    </view>
+  </view>
+
+  <!-- 打卡按钮 -->
+  <view class="checkin-section">
+    <view
+      class="checkin-btn {{canCheckIn ? '' : 'disabled'}} {{isTodayChecked ? 'checked' : ''}}"
+      bindtap="handleCheckIn"
+    >
+      <text class="checkin-icon">📅</text>
+      <text class="checkin-text">
+        {{isTodayChecked ? '今日已打卡 ✓' : '今日打卡'}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 状态说明 -->
+  <view class="status-legend">
+    <view class="legend-item">
+      <view class="legend-dot unchecked"></view>
+      <text class="legend-text">未打卡</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-dot checked"></view>
+      <text class="legend-text">已打卡</text>
+    </view>
+  </view>
+
+  <!-- 名言弹窗组件 -->
+  <quote-modal
+    show="{{showQuoteModal}}"
+    quote="{{currentQuote}}"
+    bind:close="closeQuoteModal"
+  />
+</view>

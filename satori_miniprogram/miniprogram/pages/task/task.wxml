@@ -1,0 +1,321 @@
+<!-- 任务页面 -->
+<view class="task-page">
+  <!-- 顶部栏 -->
+  <view class="header">
+    <view class="header-left">
+      <view class="list-filter" bindtap="toggleListPanel">
+        <text class="icon">≡</text>
+        <text class="filter-text">{{currentFilter === 'all' ? '全部任务' : currentFilterName}}</text>
+        <text class="dropdown-arrow">▼</text>
+      </view>
+    </view>
+    <view class="header-center">
+      <text class="title">今日待办</text>
+    </view>
+    <view class="header-right">
+      <view class="icon-btn" bindtap="toggleSearch">
+        <text class="icon">🔍</text>
+      </view>
+      <view class="icon-btn" bindtap="toggleSortPanel">
+        <text class="icon sort-icon">排序</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar {{showSearch ? 'show' : ''}}">
+    <input
+      class="search-input"
+      placeholder="搜索任务名称..."
+      value="{{searchKeyword}}"
+      bindinput="onSearchInput"
+      bindconfirm="onSearchConfirm"
+    />
+    <view class="search-close" bindtap="toggleSearch">✕</view>
+  </view>
+
+  <!-- 任务列表 -->
+  <scroll-view class="task-list" scroll-y>
+    <!-- 无任务时显示空状态 -->
+    <view class="empty-state {{filteredTasks.length === 0 ? 'show' : ''}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无{{currentFilter === 'all' ? '' : currentFilterName}}任务</text>
+      <text class="empty-hint">点击下方按钮创建新任务</text>
+    </view>
+
+    <!-- 任务卡片列表 -->
+    <view class="task-cards" wx:if="{{filteredTasks.length > 0}}">
+      <view
+        class="task-card"
+        wx:for="{{filteredTasks}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCardTap"
+      >
+        <view class="task-header">
+          <text class="task-icon">
+            {{item.priority === 'high' ? '📘' : item.priority === 'medium' ? '📝' : '🎨'}}
+          </text>
+          <text class="task-name">{{item.name}}</text>
+          <view class="task-status {{item.status}}">
+            {{item.status === 'completed' ? '✅' : ''}}
+          </view>
+        </view>
+        <view class="task-info">
+          <text class="info-item">清单：{{item.listName}}</text>
+          <text class="info-divider">·</text>
+          <text class="priority-tag {{item.priority}}">
+            {{item.priority === 'high' ? '高优先级' : item.priority === 'medium' ? '中优先级' : '低优先级'}}
+          </text>
+        </view>
+        <view class="task-progress">
+          <text class="tomato-count">🍅 {{item.completedTomatoes}}/{{item.tomatoCount}} 个番茄</text>
+          <text class="time-sep">·</text>
+          <text class="focus-time">{{item.focusMinutes}}分钟</text>
+        </view>
+        <view class="task-footer">
+          <text class="due-time">📅 {{item.dueDateStr}}</text>
+          <view class="task-actions">
+            <view class="action-btn delete" data-id="{{item.id}}" catchtap="deleteTask">🗑️</view>
+            <button class="start-btn {{item.status === 'completed' ? 'disabled' : ''}}" data-id="{{item.id}}" catchtap="startTask">
+              {{item.status === 'completed' ? '已完成' : '▶ 开始'}}
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部创建按钮 -->
+  <view class="create-task-btn" bindtap="openCreateForm">
+    <text class="plus-icon">➕</text>
+    <text class="btn-text">创建任务</text>
+  </view>
+
+  <!-- ========== 清单管理面板 ========== -->
+  <view class="list-panel {{showListPanel ? 'show' : ''}}">
+    <view class="panel-header">
+      <text class="panel-title">我的清单</text>
+      <view class="add-list-btn" bindtap="openCreateList">➕ 新建</view>
+    </view>
+    <view class="list-items">
+      <!-- 全部任务 -->
+      <view
+        class="list-item {{currentFilter === 'all' ? 'active' : ''}}"
+        bindtap="filterByList"
+        data-filter="all"
+      >
+        <text class="list-icon">☑️</text>
+        <text class="list-name">全部任务 ({{totalTaskCount}})</text>
+      </view>
+      <!-- 各清单 -->
+      <view
+        class="list-item {{currentFilter === item.id ? 'active' : ''}}"
+        wx:for="{{taskLists}}"
+        wx:key="id"
+        data-filter="{{item.id}}"
+        bindtap="filterByList"
+      >
+        <text class="list-icon">{{item.icon}}</text>
+        <text class="list-name">{{item.name}} ({{item.taskCount}})</text>
+        <view class="list-actions">
+          <view class="edit-icon" data-id="{{item.id}}" catchtap="openEditList">✏️</view>
+          <view class="delete-icon" data-id="{{item.id}}" catchtap="deleteList">🗑️</view>
+        </view>
+      </view>
+    </view>
+    <view class="panel-footer">
+      <view class="close-btn" bindtap="toggleListPanel">关闭</view>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="mask {{showListPanel || showCreateForm || showSortPanel ? 'show' : ''}}" bindtap="closeAllPanels"></view>
+
+  <!-- ========== 创建/编辑任务表单 ========== -->
+  <view class="create-form {{showCreateForm ? 'show' : ''}}">
+    <view class="form-content">
+      <view class="form-header">
+        <text class="form-title">{{editingTaskId ? '编辑任务' : '创建任务'}}</text>
+        <view class="form-close" bindtap="closeCreateForm">✕</view>
+      </view>
+
+      <scroll-view class="form-body" scroll-y>
+        <!-- 任务名称 -->
+        <view class="form-group">
+          <view class="form-label">任务名称 <text class="required">*</text></view>
+          <input
+            class="form-input"
+            placeholder="请输入任务名称（最多20字）"
+            maxlength="20"
+            value="{{formData.name}}"
+            bindinput="onFormNameInput"
+          />
+          <view class="form-hint">{{formData.name.length || 0}}/20</view>
+        </view>
+
+        <!-- 所属清单 -->
+        <view class="form-group">
+          <view class="form-label">所属清单 <text class="required">*</text></view>
+          <picker
+            mode="selector"
+            range="{{taskLists}}"
+            range-key="name"
+            bindchange="onListChange"
+          >
+            <view class="form-picker">
+              <text class="picker-text">
+                {{formData.listId ? getListName(formData.listId) : '请选择清单'}}
+              </text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+          <view class="form-hint">提示：可前往清单管理中新建清单</view>
+        </view>
+
+        <!-- 优先级 -->
+        <view class="form-group">
+          <view class="form-label">优先级 <text class="required">*</text></view>
+          <view class="priority-options">
+            <view
+              class="priority-option {{formData.priority === 'none' ? 'selected' : ''}}"
+              data-priority="none"
+              bindtap="onPriorityChange"
+            >无</view>
+            <view
+              class="priority-option {{formData.priority === 'low' ? 'selected' : ''}}"
+              data-priority="low"
+              bindtap="onPriorityChange"
+            >低</view>
+            <view
+              class="priority-option priority-option-medium {{formData.priority === 'medium' ? 'selected' : ''}}"
+              data-priority="medium"
+              bindtap="onPriorityChange"
+            >中</view>
+            <view
+              class="priority-option priority-option-high {{formData.priority === 'high' ? 'selected' : ''}}"
+              data-priority="high"
+              bindtap="onPriorityChange"
+            >高</view>
+          </view>
+        </view>
+
+        <!-- 执行时间 -->
+        <view class="form-group">
+          <view class="form-label">执行时间 <text class="required">*</text></view>
+          <picker
+            mode="date"
+            bindchange="onDateChange"
+            value="{{formData.dueDate}}"
+          >
+            <view class="form-picker">
+              <text class="picker-text">{{formData.dueDateStr || '请选择日期'}}</text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 番茄数量 -->
+        <view class="form-group">
+          <view class="form-label">番茄数量 <text class="required">*</text></view>
+          <view class="number-control">
+            <view class="num-btn minus" bindtap="decTomatoCount">-</view>
+            <text class="num-value">{{formData.tomatoCount}}</text>
+            <view class="num-btn plus" bindtap="incTomatoCount">+</view>
+            <text class="num-hint">个（1-8个）</text>
+          </view>
+        </view>
+
+        <!-- 专注时长 -->
+        <view class="form-group">
+          <view class="form-label">每次专注时长 <text class="required">*</text></view>
+          <view class="number-control">
+            <view class="num-btn minus" bindtap="decFocusMinutes">-</view>
+            <text class="num-value">{{formData.focusMinutes}}</text>
+            <view class="num-btn plus" bindtap="incFocusMinutes">+</view>
+            <text class="num-hint">分钟（5-60分钟）</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="form-footer">
+        <view class="form-btn cancel" bindtap="closeCreateForm">取消</view>
+        <view class="form-btn submit" bindtap="submitTask">
+          {{editingTaskId ? '保存' : '创建'}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 新建/编辑清单弹窗 ========== -->
+  <view class="list-form-modal {{showListForm ? 'show' : ''}}">
+    <view class="list-form-content">
+      <view class="list-form-header">
+        <text class="list-form-title">{{editingListId ? '编辑清单' : '新建清单'}}</text>
+      </view>
+      <view class="list-form-body">
+        <view class="list-form-group">
+          <view class="list-form-label">清单名称</view>
+          <input
+            class="list-form-input"
+            placeholder="请输入清单名称"
+            maxlength="10"
+            value="{{listFormData.name}}"
+            bindinput="onListFormNameInput"
+          />
+        </view>
+        <view class="list-form-group">
+          <view class="list-form-label">选择图标</view>
+          <view class="icon-picker">
+            <text
+              class="icon-item {{listFormData.icon === icon ? 'selected' : ''}}"
+              wx:for="{{listIcons}}"
+              wx:key="*this"
+              data-icon="{{item}}"
+              bindtap="onIconSelect"
+            >{{item}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="list-form-footer">
+        <view class="list-form-btn cancel" bindtap="closeListForm">取消</view>
+        <view class="list-form-btn submit" bindtap="submitListForm">确定</view>
+      </view>
+    </view>
+    <view class="list-form-mask" bindtap="closeListForm"></view>
+  </view>
+
+  <!-- ========== 排序面板 ========== -->
+  <view class="sort-panel {{showSortPanel ? 'show' : ''}}">
+    <view class="sort-header">排序方式</view>
+    <view class="sort-options">
+      <view
+        class="sort-option {{sortType === 'date' ? 'active' : ''}}"
+        bindtap="changeSortType"
+        data-type="date"
+      >
+        <text class="sort-icon">📅</text>
+        <text class="sort-text">按日期</text>
+        <text class="sort-arrow">{{sortType === 'date' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}}</text>
+      </view>
+      <view
+        class="sort-option {{sortType === 'priority' ? 'active' : ''}}"
+        bindtap="changeSortType"
+        data-type="priority"
+      >
+        <text class="sort-icon">⭐</text>
+        <text class="sort-text">按优先级</text>
+        <text class="sort-arrow">{{sortType === 'priority' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}}</text>
+      </view>
+      <view
+        class="sort-option {{sortType === 'name' ? 'active' : ''}}"
+        bindtap="changeSortType"
+        data-type="name"
+      >
+        <text class="sort-icon">🔤</text>
+        <text class="sort-text">按名称</text>
+        <text class="sort-arrow">{{sortType === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}}</text>
+      </view>
+    </view>
+  </view>
+</view>

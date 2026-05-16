@@ -1,0 +1,101 @@
+<!-- 设置页面 -->
+<view class="setting-page">
+  <!-- 页面标题 -->
+  <view class="page-title">⚙️ 个性化设置</view>
+
+  <!-- 小程序主题 -->
+  <view class="setting-section">
+    <view class="section-title">🎨 小程序主题</view>
+    <view class="theme-options">
+      <view
+        class="theme-option {{item.selected ? 'selected' : ''}}"
+        wx:for="{{settings.themeOptions}}"
+        wx:key="value"
+        data-theme="{{item.value}}"
+        bindtap="selectTheme"
+      >
+        <text class="option-radio {{item.selected ? 'selected' : ''}}"></text>
+        <text class="option-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 默认白噪音 -->
+  <view class="setting-section">
+    <view class="section-title">🌧️ 默认白噪音</view>
+    <view class="dropdown-select" bindtap="toggleWhiteNoiseDropdown">
+      <view class="select-current">
+        <text class="current-text">当前：{{currentWhiteNoiseLabel}}</text>
+        <text class="dropdown-icon {{whiteNoiseDropdownOpen ? 'expanded' : ''}}">▼</text>
+      </view>
+    </view>
+    <view class="dropdown-options {{whiteNoiseDropdownOpen ? 'open' : ''}}">
+      <view
+        class="dropdown-option {{item.selected ? 'selected' : ''}}"
+        wx:for="{{settings.whiteNoiseOptions}}"
+        wx:key="value"
+        data-noise="{{item.value}}"
+        bindtap="selectWhiteNoise"
+      >
+        <text class="option-icon">
+          {{item.value === 'rain' ? '🌧️' : item.value === 'waves' ? '🌊' : item.value === 'fire' ? '🔥' : item.value === 'gugin' ? '🎵' : '🔇'}}
+        </text>
+        <text class="option-text">{{item.label}}</text>
+      </view>
+    </view>
+    <view class="options-hint">选项：雨声、海浪、篝火、古琴、无</view>
+  </view>
+
+  <!-- 默认休息铃声 -->
+  <view class="setting-section">
+    <view class="section-title">🔔 默认休息铃声</view>
+    <view class="dropdown-select" bindtap="toggleRestSoundDropdown">
+      <view class="select-current">
+        <text class="current-text">当前：{{currentRestSoundLabel}}</text>
+        <text class="dropdown-icon {{restSoundDropdownOpen ? 'expanded' : ''}}">▼</text>
+      </view>
+    </view>
+    <view class="dropdown-options {{restSoundDropdownOpen ? 'open' : ''}}">
+      <view
+        class="dropdown-option {{item.selected ? 'selected' : ''}}"
+        wx:for="{{settings.restSoundOptions}}"
+        wx:key="value"
+        data-sound="{{item.value}}"
+        bindtap="selectRestSound"
+      >
+        <text class="option-icon">
+          {{item.value === 'guzheng' ? '🎵' : item.value === 'bowl' ? '🪘' : item.value === 'birds' ? '🐦' : '🔇'}}
+        </text>
+        <text class="option-text">{{item.label}}</text>
+      </view>
+    </view>
+    <view class="options-hint">选项：古筝音、钵音、鸟鸣、无</view>
+  </view>
+
+  <!-- 默认休息时长 -->
+  <view class="setting-section">
+    <view class="section-title">⏰ 默认休息时长</view>
+    <view class="duration-control">
+      <view class="control-wrapper">
+        <view class="control-btn minus" bindtap="decreaseRestDuration">
+          <text class="btn-text">-</text>
+        </view>
+        <view class="duration-display">
+          <text class="duration-value">{{restDuration}}</text>
+          <text class="duration-unit">分钟</text>
+        </view>
+        <view class="control-btn plus" bindtap="increaseRestDuration">
+          <text class="btn-text">+</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于信息 -->
+  <view class="setting-section">
+    <view class="section-title">ℹ️ 关于</view>
+    <view class="about-info" bindtap="showAbout">
+      <text class="version">版本 1.0.0 · 弘扬国风文化</text>
+    </view>
+  </view>
+</view>

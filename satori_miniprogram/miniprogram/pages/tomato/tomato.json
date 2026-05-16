@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "incense-burner": "/components/incense-burner/incense-burner"
+  }
+}
