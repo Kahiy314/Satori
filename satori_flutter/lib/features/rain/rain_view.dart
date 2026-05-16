@@ -8,7 +8,7 @@ import '../../core/theme/theme.dart';
 import '../../services/entitlement_controller.dart';
 import '../../core/components/section_page_header.dart';
 import '../../services/haptic_service.dart';
-import '../tea/tea_view.dart';
+import '../tea/tea_route.dart';
 import 'rain_view_model.dart';
 import 'components/audio_wave_view.dart';
 
@@ -51,11 +51,26 @@ class _RainViewState extends State<RainView>
     _waveController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
-    )..repeat();
+    );
+    _syncWaveAnimation();
   }
 
   void _onChanged() {
+    _syncWaveAnimation();
     if (mounted) setState(() {});
+  }
+
+  void _syncWaveAnimation() {
+    if (!widget.showPlayer || !_vm.isAnyPlaying) {
+      if (_waveController.isAnimating) {
+        _waveController.stop();
+      }
+      return;
+    }
+
+    if (!_waveController.isAnimating) {
+      _waveController.repeat();
+    }
   }
 
   @override
@@ -144,7 +159,7 @@ class _RainViewState extends State<RainView>
           isLocked: _vm.isSourceLocked(_vm.sources[i]),
           icon: _iconMap[_vm.sources[i].icon] ?? Icons.music_note,
           onToggle: () {
-            _handleSourceTap(_vm.sources[i]);
+            unawaited(_handleSourceTap(_vm.sources[i]));
           },
           onVolumeChange: (v) => _vm.setVolume(_vm.sources[i].id, v),
         ),
@@ -152,33 +167,33 @@ class _RainViewState extends State<RainView>
     );
   }
 
-  void _handleSourceTap(SoundSource source) {
+  Future<void> _handleSourceTap(SoundSource source) async {
     if (_vm.isSourceLocked(source)) {
       HapticService.instance.warningTap();
-      unawaited(
-        MemberPrompt.showHalfBlock(
-          context,
-          title: '${source.name} 属于${source.requiredTier.label}权益',
-          description:
-              '当前白噪音需要${source.requiredTier.label}或更高会员等级。你也可以在设置中开启开发者模式，便于调试完整资源。',
-          onGoTea: _openTea,
-        ),
+      final shouldOpenTea = await MemberPrompt.showHalfBlock(
+        context,
+        title: '${source.name} 属于${source.requiredTier.label}权益',
+        description:
+            '当前白噪音需要${source.requiredTier.label}或更高会员等级。你也可以在设置中开启开发者模式，便于调试完整资源。',
+      );
+      if (shouldOpenTea != true || !mounted) {
+        return;
+      }
+
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) {
+        return;
+      }
+
+      await openTeaPage(
+        context,
+        entitlementController: widget.entitlementController,
       );
       return;
     }
 
     HapticService.instance.lightTap();
     unawaited(_vm.toggleSource(source.id));
-  }
-
-  void _openTea() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TeaView(
-          entitlementController: widget.entitlementController,
-        ),
-      ),
-    );
   }
 }
 

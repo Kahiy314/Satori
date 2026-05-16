@@ -35,6 +35,12 @@ class FocusSession {
   /// 最后一次本地或云端更新时间，用于同步冲突判定。
   final DateTime? updatedAt;
 
+  /// 云端回写的可信级别；本地未同步记录时为空。
+  final String? trustLevel;
+
+  /// 云端积分；未同步或服务端未赋值时为 0。
+  final int serverScore;
+
   // ── 可选字段：标签、小结、复盘 ──
 
   /// 用户为本次专注添加的任务标签
@@ -61,6 +67,8 @@ class FocusSession {
     required this.createdAt,
     this.userId,
     this.updatedAt,
+    this.trustLevel,
+    this.serverScore = 0,
     this.taskTag,
     this.summaryNote,
     this.reflectionMood,
@@ -84,6 +92,8 @@ class FocusSession {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
+      trustLevel: json['trustLevel'] as String?,
+      serverScore: (json['serverScore'] as num?)?.toInt() ?? 0,
       taskTag: json['taskTag'] as String?,
       summaryNote: json['summaryNote'] as String?,
       reflectionMood: json['reflectionMood'] != null
@@ -106,6 +116,8 @@ class FocusSession {
       'createdAt': createdAt.toIso8601String(),
       'userId': userId,
       'updatedAt': updatedAt?.toIso8601String(),
+      'trustLevel': trustLevel,
+      'serverScore': serverScore,
       'taskTag': taskTag,
       'summaryNote': summaryNote,
       'reflectionMood': reflectionMood?.name,
@@ -125,6 +137,8 @@ class FocusSession {
     DateTime? createdAt,
     String? userId,
     DateTime? updatedAt,
+    String? trustLevel,
+    int? serverScore,
     String? taskTag,
     String? summaryNote,
     ReflectionMood? reflectionMood,
@@ -141,6 +155,8 @@ class FocusSession {
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
       updatedAt: updatedAt ?? this.updatedAt,
+      trustLevel: trustLevel ?? this.trustLevel,
+      serverScore: serverScore ?? this.serverScore,
       taskTag: taskTag ?? this.taskTag,
       summaryNote: summaryNote ?? this.summaryNote,
       reflectionMood: reflectionMood ?? this.reflectionMood,

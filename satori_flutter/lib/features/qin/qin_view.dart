@@ -8,7 +8,7 @@ import '../../core/theme/theme.dart';
 import '../../services/entitlement_controller.dart';
 import '../../core/components/section_page_header.dart';
 import '../../services/haptic_service.dart';
-import '../tea/tea_view.dart';
+import '../tea/tea_route.dart';
 import 'qin_view_model.dart';
 import 'components/music_player_view.dart';
 
@@ -92,21 +92,7 @@ class _QinViewState extends State<QinView> {
 
     return GestureDetector(
       onTap: () {
-        if (isLocked) {
-          HapticService.instance.warningTap();
-          unawaited(
-            MemberPrompt.showHalfBlock(
-              context,
-              title: '${track.title} 属于${track.requiredTier.label}权益',
-              description:
-                  '当前曲目需要${track.requiredTier.label}或更高会员等级。若你正在调试资源，也可以在设置中开启开发者模式。',
-              onGoTea: _openTea,
-            ),
-          );
-        } else {
-          HapticService.instance.lightTap();
-          unawaited(_vm.play(track));
-        }
+        unawaited(_handleTrackTap(track));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(
@@ -178,14 +164,33 @@ class _QinViewState extends State<QinView> {
     );
   }
 
-  void _openTea() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TeaView(
-          entitlementController: widget.entitlementController,
-        ),
-      ),
-    );
+  Future<void> _handleTrackTap(Track track) async {
+    if (_vm.isTrackLocked(track)) {
+      HapticService.instance.warningTap();
+      final shouldOpenTea = await MemberPrompt.showHalfBlock(
+        context,
+        title: '${track.title} 属于${track.requiredTier.label}权益',
+        description:
+            '当前曲目需要${track.requiredTier.label}或更高会员等级。若你正在调试资源，也可以在设置中开启开发者模式。',
+      );
+      if (shouldOpenTea != true || !mounted) {
+        return;
+      }
+
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) {
+        return;
+      }
+
+      await openTeaPage(
+        context,
+        entitlementController: widget.entitlementController,
+      );
+      return;
+    }
+
+    HapticService.instance.lightTap();
+    await _vm.play(track);
   }
 }
 

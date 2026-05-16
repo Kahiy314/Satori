@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/theme.dart';
 import '../features/incense/incense_view.dart';
 import '../features/rain/rain_qin_view.dart';
-import '../features/tea/tea_view.dart';
+import '../features/settings/auth_sheet.dart';
+import '../features/tea/tea_route.dart';
 import '../features/stats/stats_view.dart';
 import '../features/settings/settings_view.dart';
+import '../services/auth_controller.dart';
 import 'satori_tab_bar.dart';
 import 'providers.dart';
 
@@ -14,41 +18,24 @@ enum _ContentPage {
   rain,
   stats,
   settings,
-  tea,
 }
 
 /// 底部 Tab 导航
 ///
 /// 底部四个图标 Tab：焚香、听雨、行迹、设置。
 /// 品茗被整合到设置页中。
-class ContentView extends StatefulWidget {
+class ContentView extends ConsumerStatefulWidget {
   const ContentView({super.key});
 
   @override
-  State<ContentView> createState() => _ContentViewState();
+  ConsumerState<ContentView> createState() => _ContentViewState();
 }
 
-class _ContentViewState extends State<ContentView> {
+class _ContentViewState extends ConsumerState<ContentView> {
   _ContentPage _currentPage = _ContentPage.incense;
   SatoriTab _selectedTab = SatoriTab.incense;
   double _opacity = 1.0;
-
-  void _handlePageChange(_ContentPage page) {
-    if (page == _currentPage) {
-      return;
-    }
-
-    // 渐出 → 切换 → 渐入
-    setState(() => _opacity = 0);
-    Future.delayed(SatoriTheme.animFast, () {
-      if (!mounted) return;
-      setState(() {
-        _currentPage = page;
-        _selectedTab = _pageToTab(page);
-        _opacity = 1;
-      });
-    });
-  }
+  bool _isShowingPasswordRecoverySheet = false;
 
   void _handleTabChange(SatoriTab tab) {
     final page = _tabToPage(tab);
@@ -78,26 +65,6 @@ class _ContentViewState extends State<ContentView> {
     }
   }
 
-  SatoriTab _pageToTab(_ContentPage page) {
-    switch (page) {
-      case _ContentPage.incense:
-        return SatoriTab.incense;
-      case _ContentPage.rain:
-        return SatoriTab.rain;
-      case _ContentPage.stats:
-        return SatoriTab.stats;
-      case _ContentPage.settings:
-        return SatoriTab.settings;
-      case _ContentPage.tea:
-        return SatoriTab.settings;
-    }
-  }
-
-  /// 从设置页跳转品茗（双重露出 U6）
-  void _goToTea() {
-    _handlePageChange(_ContentPage.tea);
-  }
-
   Widget _buildCurrentPage() {
     switch (_currentPage) {
       case _ContentPage.incense:
@@ -107,14 +74,50 @@ class _ContentViewState extends State<ContentView> {
       case _ContentPage.stats:
         return const _StatsPageWrapper();
       case _ContentPage.settings:
-        return _SettingsPageWrapper(onTeaTap: _goToTea);
-      case _ContentPage.tea:
-        return const _TeaPageWrapper();
+        return const _SettingsPageWrapper();
     }
+  }
+
+  void _handleAuthUiEvent(AuthController authController) {
+    final event = authController.takePendingUiEvent();
+    if (event == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      if (event.type == AuthUiEventType.notice) {
+        messenger?.showSnackBar(SnackBar(content: Text(event.message)));
+        return;
+      }
+
+      messenger?.showSnackBar(SnackBar(content: Text(event.message)));
+      if (_isShowingPasswordRecoverySheet) return;
+
+      setState(() => _isShowingPasswordRecoverySheet = true);
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        isDismissible: false,
+        enableDrag: false,
+        backgroundColor: Colors.transparent,
+        builder: (_) => PasswordRecoverySheet(authController: authController),
+      );
+      if (mounted) {
+        setState(() => _isShowingPasswordRecoverySheet = false);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final authController = ref.read(authControllerProvider);
+    _handleAuthUiEvent(authController);
+    ref.read(supabaseSessionRepositoryProvider);
+    ref.listen<AuthController>(authControllerProvider, (_, controller) {
+      _handleAuthUiEvent(controller);
+    });
+
     return Scaffold(
       body: Column(
         children: [
@@ -165,28 +168,25 @@ class _RainQinPageWrapper extends ConsumerWidget {
 
 /// 设置页包装器
 class _SettingsPageWrapper extends ConsumerWidget {
-  final VoidCallback onTeaTap;
-  const _SettingsPageWrapper({required this.onTeaTap});
+  const _SettingsPageWrapper();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final entitlementController = ref.watch(entitlementControllerProvider);
+
     return SettingsView(
-      onTeaTap: onTeaTap,
+      onTeaTap: () {
+        unawaited(
+          openTeaPage(
+            context,
+            entitlementController: entitlementController,
+          ),
+        );
+      },
       authController: ref.watch(authControllerProvider),
       onAuthenticated:
           ref.watch(supabaseSessionRepositoryProvider).syncWithCloud,
-      entitlementController: ref.watch(entitlementControllerProvider),
-    );
-  }
-}
-
-class _TeaPageWrapper extends ConsumerWidget {
-  const _TeaPageWrapper();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return TeaView(
-      entitlementController: ref.watch(entitlementControllerProvider),
+      entitlementController: entitlementController,
     );
   }
 }

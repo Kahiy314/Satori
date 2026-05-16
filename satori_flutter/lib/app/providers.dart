@@ -83,3 +83,9 @@ final incenseViewModelProvider =
     focusActivityService: ref.watch(focusActivityServiceProvider),
   );
 });
+
+final incenseSummarySessionIdProvider = Provider<String?>((ref) {
+  final vm = ref.watch(incenseViewModelProvider);
+  if (vm.state != TimerState.completed) return null;
+  return vm.lastFinishedSession?.sessionId;
+});

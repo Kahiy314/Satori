@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -25,32 +24,29 @@ class IncenseView extends ConsumerStatefulWidget {
 }
 
 class _IncenseViewState extends ConsumerState<IncenseView> {
-  IncenseViewModel? _vmRef;
-  StreamSubscription<IncenseSessionEvent>? _eventSub;
+  late final ProviderSubscription<String?> _summarySessionIdSub;
 
-  IncenseViewModel get _vm => _vmRef ?? ref.read(incenseViewModelProvider);
+  IncenseViewModel get _vm => ref.read(incenseViewModelProvider);
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final newVm = ref.read(incenseViewModelProvider);
-    if (newVm != _vmRef) {
-      _eventSub?.cancel();
-      _vmRef = newVm;
-      _eventSub = _vmRef!.sessionEvents.listen(_onSessionEvent);
-    }
-  }
-
-  void _onSessionEvent(IncenseSessionEvent event) {
-    if (!mounted) return;
-    if (event == IncenseSessionEvent.completed) {
-      _showSessionSummary();
-    }
+  void initState() {
+    super.initState();
+    _summarySessionIdSub = ref.listenManual<String?>(
+      incenseSummarySessionIdProvider,
+      (previous, next) {
+        if (next == null || next == previous || !mounted) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _showSessionSummary();
+          }
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
-    _eventSub?.cancel();
+    _summarySessionIdSub.close();
     super.dispose();
   }
 
@@ -612,7 +608,7 @@ class _CountUpLayoutState extends State<_CountUpLayout> {
     _clockStream = Stream.periodic(
       const Duration(seconds: 1),
       (_) => DateTime.now(),
-    ).asBroadcastStream();
+    );
   }
 
   @override
@@ -878,7 +874,7 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
               ),
             ),
             const SizedBox(height: SatoriTheme.spacingL),
-            Text('自定义专注时长', style: SatoriTypography.title),
+            const Text('自定义专注时长', style: SatoriTypography.title),
             const SizedBox(height: SatoriTheme.spacingXL),
             Text(
               '$_minutes 分钟',
@@ -970,7 +966,7 @@ class _CustomDurationSheetState extends State<_CustomDurationSheet> {
                     widget.vm.applyCustomDuration();
                     Navigator.pop(context);
                   },
-                  child: Text('确定', style: SatoriTypography.subtitle),
+                  child: const Text('确定', style: SatoriTypography.subtitle),
                 ),
               ),
             ),
@@ -1071,7 +1067,7 @@ class _TagInputSheetState extends State<_TagInputSheet> {
               ),
             ),
             const SizedBox(height: SatoriTheme.spacingL),
-            Text('本次专注标签', style: SatoriTypography.title),
+            const Text('本次专注标签', style: SatoriTypography.title),
             const SizedBox(height: SatoriTheme.spacingM),
             TextField(
               controller: _controller,
@@ -1232,12 +1228,12 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
       ),
       child: SafeArea(
         top: false,
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
@@ -1245,29 +1241,33 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: SatoriTheme.spacingXL),
+            ),
+            const SizedBox(height: SatoriTheme.spacingXL),
 
-              // 完成图标
-              Icon(
-                Icons.check_circle_outline,
-                size: 48,
-                color: SatoriColors.incenseEmber.withValues(alpha: 0.7),
+            // 完成图标
+            Icon(
+              Icons.check_circle_outline,
+              size: 48,
+              color: SatoriColors.incenseEmber.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: SatoriTheme.spacingM),
+            Text(
+              '专注完成',
+              textAlign: TextAlign.center,
+              style: SatoriTypography.title.copyWith(color: textColor),
+            ),
+            const SizedBox(height: SatoriTheme.spacingS),
+            Text(
+              _durationText,
+              textAlign: TextAlign.center,
+              style: SatoriTypography.timer.copyWith(
+                color: SatoriColors.incenseEmber,
               ),
-              const SizedBox(height: SatoriTheme.spacingM),
-              Text(
-                '专注完成',
-                style: SatoriTypography.title.copyWith(color: textColor),
-              ),
+            ),
+            if (widget.session.taskTag != null) ...[
               const SizedBox(height: SatoriTheme.spacingS),
-              Text(
-                _durationText,
-                style: SatoriTypography.timer.copyWith(
-                  color: SatoriColors.incenseEmber,
-                ),
-              ),
-              if (widget.session.taskTag != null) ...[
-                const SizedBox(height: SatoriTheme.spacingS),
-                Container(
+              Center(
+                child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 4,
@@ -1283,87 +1283,88 @@ class _SessionSummarySheetState extends State<_SessionSummarySheet> {
                     ),
                   ),
                 ),
-              ],
-              const SizedBox(height: SatoriTheme.spacingXL),
+              ),
+            ],
+            const SizedBox(height: SatoriTheme.spacingXL),
 
-              // 感受选择
-              Text('此刻感受',
+            // 感受选择
+            Text('此刻感受',
+                textAlign: TextAlign.center,
+                style: SatoriTypography.caption
+                    .copyWith(color: Colors.grey.withValues(alpha: 0.6))),
+            const SizedBox(height: SatoriTheme.spacingM),
+            _buildMoodRow(),
+
+            const SizedBox(height: SatoriTheme.spacingXL),
+
+            // 备注输入
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('小结备注（可选）',
                   style: SatoriTypography.caption
                       .copyWith(color: Colors.grey.withValues(alpha: 0.6))),
-              const SizedBox(height: SatoriTheme.spacingM),
-              _buildMoodRow(),
-
-              const SizedBox(height: SatoriTheme.spacingXL),
-
-              // 备注输入
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text('小结备注（可选）',
-                    style: SatoriTypography.caption
-                        .copyWith(color: Colors.grey.withValues(alpha: 0.6))),
-              ),
-              const SizedBox(height: SatoriTheme.spacingS),
-              TextField(
-                controller: _noteController,
-                maxLines: 3,
-                style: SatoriTypography.caption.copyWith(color: textColor),
-                decoration: InputDecoration(
-                  hintText: '记录些什么...',
-                  hintStyle: SatoriTypography.caption.copyWith(
-                    color: Colors.grey.withValues(alpha: 0.3),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: SatoriColors.incenseEmber.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.all(12),
+            ),
+            const SizedBox(height: SatoriTheme.spacingS),
+            TextField(
+              controller: _noteController,
+              maxLines: 3,
+              style: SatoriTypography.caption.copyWith(color: textColor),
+              decoration: InputDecoration(
+                hintText: '记录些什么...',
+                hintStyle: SatoriTypography.caption.copyWith(
+                  color: Colors.grey.withValues(alpha: 0.3),
                 ),
-              ),
-
-              const Spacer(),
-
-              // 保存按钮
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SatoriColors.incenseEmber,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.grey.withValues(alpha: 0.2),
                   ),
-                  onPressed: () {
-                    final note = _noteController.text.trim();
-                    widget.onSave(
-                      note.isEmpty ? null : note,
-                      _selectedMood,
-                    );
-                  },
-                  child: Text('保存',
-                      style: SatoriTypography.subtitle
-                          .copyWith(color: Colors.white)),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: SatoriColors.incenseEmber.withValues(alpha: 0.5),
+                  ),
+                ),
+                contentPadding: const EdgeInsets.all(12),
               ),
-              const SizedBox(height: SatoriTheme.spacingS),
-              TextButton(
-                onPressed: widget.onSkip,
-                child: Text('跳过',
-                    style: SatoriTypography.caption
-                        .copyWith(color: Colors.grey.withValues(alpha: 0.5))),
+            ),
+
+            const SizedBox(height: SatoriTheme.spacingXL),
+
+            // 保存按钮
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SatoriColors.incenseEmber,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () {
+                  final note = _noteController.text.trim();
+                  widget.onSave(
+                    note.isEmpty ? null : note,
+                    _selectedMood,
+                  );
+                },
+                child: Text('保存',
+                    style: SatoriTypography.subtitle
+                        .copyWith(color: Colors.white)),
               ),
-              const SizedBox(height: SatoriTheme.spacingS),
-            ],
-          ),
+            ),
+            const SizedBox(height: SatoriTheme.spacingS),
+            TextButton(
+              onPressed: widget.onSkip,
+              child: Text('跳过',
+                  style: SatoriTypography.caption
+                      .copyWith(color: Colors.grey.withValues(alpha: 0.5))),
+            ),
+            const SizedBox(height: SatoriTheme.spacingS),
+          ],
         ),
       ),
     );

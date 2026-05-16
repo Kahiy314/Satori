@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satori/app/providers.dart';
 import 'package:satori/core/models/focus_session.dart';
 import 'package:satori/features/incense/incense_view.dart';
+import 'package:satori/features/incense/incense_view_model.dart';
 import 'package:satori/services/focus_activity_service.dart';
 import 'package:satori/services/session_repository.dart';
 import 'package:satori/services/user_preferences.dart';
@@ -19,7 +22,9 @@ class _TestSessionRepository implements SessionRepository {
   Future<List<FocusSession>> findAllCounted() async => [];
 
   @override
-  Future<List<FocusSession>> findByDateRange(DateTime from, DateTime to) async => [];
+  Future<List<FocusSession>> findByDateRange(
+          DateTime from, DateTime to) async =>
+      [];
 
   @override
   Future<FocusSession?> findById(String sessionId) async => null;
@@ -29,6 +34,15 @@ class _TestSessionRepository implements SessionRepository {
 
   @override
   Future<void> save(FocusSession session) async {}
+}
+
+class _DelayedTestSessionRepository extends _TestSessionRepository {
+  _DelayedTestSessionRepository(this.saveCompleter);
+
+  final Completer<void> saveCompleter;
+
+  @override
+  Future<void> save(FocusSession session) => saveCompleter.future;
 }
 
 class _TestUserPreferences implements UserPreferences {
@@ -98,5 +112,99 @@ void main() {
 
     expect(find.byIcon(Icons.pause), findsOneWidget);
     expect(find.text('正计时'), findsNothing);
+  });
+
+  testWidgets('完成专注后在保存未返回前也会弹出总结页', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 1280));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final saveCompleter = Completer<void>();
+    final container = ProviderContainer(
+      overrides: [
+        sessionRepositoryProvider.overrideWithValue(
+          _DelayedTestSessionRepository(saveCompleter),
+        ),
+        userPreferencesProvider.overrideWithValue(_TestUserPreferences()),
+        focusActivityServiceProvider.overrideWithValue(
+          _TestFocusActivityService(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: IncenseView(),
+          ),
+        ),
+      ),
+    );
+
+    final vm = container.read(incenseViewModelProvider);
+    vm.switchMode(TimerMode.countUp);
+    vm.start();
+    vm.pause();
+    vm.stopCountUp();
+
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('专注完成'), findsOneWidget);
+    expect(saveCompleter.isCompleted, isFalse);
+
+    saveCompleter.complete();
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('倒计时自然结束后在保存未返回前也会弹出总结页', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 1280));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final saveCompleter = Completer<void>();
+    final container = ProviderContainer(
+      overrides: [
+        sessionRepositoryProvider.overrideWithValue(
+          _DelayedTestSessionRepository(saveCompleter),
+        ),
+        userPreferencesProvider.overrideWithValue(_TestUserPreferences()),
+        focusActivityServiceProvider.overrideWithValue(
+          _TestFocusActivityService(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: IncenseView(),
+          ),
+        ),
+      ),
+    );
+
+    final vm = container.read(incenseViewModelProvider);
+    vm.totalDuration = 121;
+    vm.remainingTime = 121;
+    vm.start();
+    vm.compensateBackground(const Duration(seconds: 121));
+
+    await tester.pump(const Duration(milliseconds: 60));
+    await tester.pump();
+
+    expect(find.text('专注完成'), findsOneWidget);
+    expect(saveCompleter.isCompleted, isFalse);
+
+    saveCompleter.complete();
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

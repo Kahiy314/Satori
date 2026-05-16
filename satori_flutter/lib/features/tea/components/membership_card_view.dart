@@ -46,7 +46,7 @@ class MembershipCardView extends StatelessWidget {
             children: [
               Text(
                 '$points',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w100,
                   color: Colors.white,

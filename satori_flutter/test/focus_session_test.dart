@@ -72,6 +72,8 @@ void main() {
         mode: FocusMode.countdown,
         status: SessionStatus.completed,
         createdAt: DateTime(2026, 3, 16, 9, 59),
+        trustLevel: 'client_reported',
+        serverScore: 4,
         taskTag: '写代码',
         summaryNote: '很专注',
         reflectionMood: ReflectionMood.focused,
@@ -88,6 +90,8 @@ void main() {
       expect(restored.actualDuration, session.actualDuration);
       expect(restored.mode, session.mode);
       expect(restored.status, session.status);
+      expect(restored.trustLevel, 'client_reported');
+      expect(restored.serverScore, 4);
       expect(restored.taskTag, '写代码');
       expect(restored.summaryNote, '很专注');
       expect(restored.reflectionMood, ReflectionMood.focused);
@@ -105,10 +109,14 @@ void main() {
       );
 
       final updated = session.copyWith(
+        trustLevel: 'server_verified',
+        serverScore: 9,
         summaryNote: '有点分心',
         reflectionMood: ReflectionMood.distracted,
       );
 
+      expect(updated.trustLevel, 'server_verified');
+      expect(updated.serverScore, 9);
       expect(updated.summaryNote, '有点分心');
       expect(updated.reflectionMood, ReflectionMood.distracted);
       expect(updated.sessionId, session.sessionId);
@@ -205,14 +213,18 @@ void main() {
       await repo.save(_makeSession('s1',
           duration: 1500,
           status: SessionStatus.completed,
+        taskTag: '写作',
+        mood: ReflectionMood.focused,
           start: DateTime(2026, 3, 16, 10, 0)));
       await repo.save(_makeSession('s2',
           duration: 600,
           status: SessionStatus.abandoned,
+        taskTag: '写作',
           start: DateTime(2026, 3, 16, 14, 0)));
       await repo.save(_makeSession('s3',
           duration: 300,
           status: SessionStatus.interrupted,
+        mood: ReflectionMood.distracted,
           start: DateTime(2026, 3, 15, 9, 0)));
 
       final overview = await agg.overview();
@@ -222,6 +234,12 @@ void main() {
       expect(overview.abandonedCount, 2); // abandoned + interrupted
       expect(overview.avgDuration, 1500); // 仅 completed 的平均
       expect(overview.avgAbandonedDuration, (600 + 300) / 2);
+      expect(overview.completedSessions, 1);
+      expect(overview.completionRate, closeTo(1 / 3, 0.0001));
+      expect(overview.longestSessionDuration, 1500);
+      expect(overview.bestFocusHour, 10);
+      expect(overview.topTag, '写作');
+      expect(overview.topMood, ReflectionMood.focused);
     });
 
     test('低于阈值的会话不进入统计', () async {
@@ -249,6 +267,51 @@ void main() {
       expect(daily[0].totalDuration, 600); // 3.14
       expect(daily[1].totalDuration, 0); // 3.15 zero-fill
       expect(daily[2].totalDuration, 900); // 3.16
+    });
+
+    test('overview 支持按范围计算连续天数和最长连续天数', () async {
+      await repo.save(_makeSession('s1',
+          duration: 1500,
+          status: SessionStatus.completed,
+          start: DateTime(2026, 3, 14, 9, 0)));
+      await repo.save(_makeSession('s2',
+          duration: 1500,
+          status: SessionStatus.completed,
+          start: DateTime(2026, 3, 15, 9, 0)));
+      await repo.save(_makeSession('s3',
+          duration: 1500,
+          status: SessionStatus.completed,
+          start: DateTime(2026, 3, 16, 9, 0)));
+      await repo.save(_makeSession('gap',
+          duration: 1500,
+          status: SessionStatus.completed,
+          start: DateTime(2026, 3, 18, 9, 0)));
+
+      final overview = await agg.overview(
+        from: DateTime(2026, 3, 14),
+        to: DateTime(2026, 3, 16),
+      );
+
+      expect(overview.currentStreak, 3);
+      expect(overview.longestStreak, 3);
+    });
+
+    test('sessionsInRange 返回闭区间内的会话', () async {
+      await repo.save(_makeSession('s1',
+          duration: 600, start: DateTime(2026, 3, 14, 10, 0)));
+      await repo.save(_makeSession('s2',
+          duration: 600, start: DateTime(2026, 3, 15, 10, 0)));
+      await repo.save(_makeSession('s3',
+          duration: 600, start: DateTime(2026, 3, 16, 10, 0)));
+
+      final sessions = await agg.sessionsInRange(
+        DateTime(2026, 3, 15),
+        DateTime(2026, 3, 16),
+      );
+
+      expect(sessions.length, 2);
+      expect(sessions.first.sessionId, 's3');
+      expect(sessions.last.sessionId, 's2');
     });
 
     test('sessionsForDay 返回当天会话', () async {
@@ -289,6 +352,8 @@ FocusSession _makeSession(
   SessionStatus status = SessionStatus.completed,
   DateTime? start,
   bool counted = true,
+  String? taskTag,
+  ReflectionMood? mood,
 }) {
   final startAt = start ?? DateTime(2026, 3, 16, 10, 0);
   return FocusSession(
@@ -299,6 +364,8 @@ FocusSession _makeSession(
     mode: FocusMode.countdown,
     status: status,
     createdAt: startAt,
+    taskTag: taskTag,
+    reflectionMood: mood,
     isCountedInHistory: counted,
   );
 }

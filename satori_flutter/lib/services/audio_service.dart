@@ -136,8 +136,8 @@ class AudioService {
   }) async {
     const steps = 20;
     final interval = duration.inMilliseconds ~/ steps;
-    final startVolume = 1.0; // approximate
-    final decrement = startVolume / steps;
+    const startVolume = 1.0; // approximate
+    const decrement = startVolume / steps;
 
     for (var i = 1; i <= steps; i++) {
       await Future.delayed(Duration(milliseconds: interval));

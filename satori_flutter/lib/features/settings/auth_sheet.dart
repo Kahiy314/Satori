@@ -330,3 +330,203 @@ class _ModeChip extends StatelessWidget {
     );
   }
 }
+
+class PasswordRecoverySheet extends StatefulWidget {
+  const PasswordRecoverySheet({
+    super.key,
+    required this.authController,
+  });
+
+  final AuthController authController;
+
+  @override
+  State<PasswordRecoverySheet> createState() => _PasswordRecoverySheetState();
+}
+
+class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1E1E20) : Colors.white;
+
+    return AnimatedBuilder(
+      animation: widget.authController,
+      builder: (context, _) {
+        return Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(20),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(SatoriTheme.spacingL),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: SatoriTheme.spacingL),
+                  const Text('设置新密码', style: SatoriTypography.title),
+                  const SizedBox(height: SatoriTheme.spacingXS),
+                  Text(
+                    '邮箱回跳已成功进入 App，请立即设置新的登录密码。',
+                    style: SatoriTypography.caption.copyWith(
+                      color: Colors.grey.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: SatoriTheme.spacingL),
+                  _buildPasswordField(
+                    controller: _passwordController,
+                    label: '新密码',
+                  ),
+                  const SizedBox(height: SatoriTheme.spacingM),
+                  _buildPasswordField(
+                    controller: _confirmPasswordController,
+                    label: '确认新密码',
+                  ),
+                  if (widget.authController.errorMessage != null) ...[
+                    const SizedBox(height: SatoriTheme.spacingM),
+                    Text(
+                      widget.authController.errorMessage!,
+                      style: SatoriTypography.caption.copyWith(
+                        color: SatoriColors.incenseEmber,
+                      ),
+                    ),
+                  ],
+                  if (widget.authController.infoMessage != null) ...[
+                    const SizedBox(height: SatoriTheme.spacingM),
+                    Text(
+                      widget.authController.infoMessage!,
+                      style: SatoriTypography.caption.copyWith(
+                        color: SatoriColors.verdigris,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: SatoriTheme.spacingL),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: widget.authController.isBusy ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: SatoriColors.incenseEmber,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: widget.authController.isBusy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              '更新密码',
+                              style: SatoriTypography.subtitle.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: SatoriTheme.spacingS),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed:
+                          widget.authController.isBusy ? null : _cancelRecovery,
+                      child: Text(
+                        '取消并退出恢复流程',
+                        style: SatoriTypography.caption.copyWith(
+                          color: Colors.grey.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: true,
+      autofillHints: const [AutofillHints.newPassword],
+      decoration: InputDecoration(labelText: label),
+    );
+  }
+
+  Future<void> _submit() async {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (password.length < 6) {
+      _showSnack('密码至少需要 6 位');
+      return;
+    }
+    if (password != confirmPassword) {
+      _showSnack('两次输入的密码不一致');
+      return;
+    }
+
+    final success = await widget.authController.updatePassword(
+      password: password,
+    );
+    if (!mounted || !success) return;
+
+    final message = widget.authController.infoMessage;
+    Navigator.of(context).pop();
+    if (message != null) _showSnack(message);
+  }
+
+  Future<void> _cancelRecovery() async {
+    await widget.authController.signOut();
+    if (!mounted) return;
+
+    final message = widget.authController.infoMessage;
+    Navigator.of(context).pop();
+    if (message != null) _showSnack(message);
+  }
+
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}

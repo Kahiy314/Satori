@@ -294,13 +294,15 @@ class IncenseViewModel extends ChangeNotifier {
 
     lastFinishedSession = session;
     _currentSession = null;
+    final finishedTaskTag = _currentTaskTag;
+    _currentTaskTag = null;
 
     // 持久化
     await _sessionRepository?.save(session);
 
     // 保存标签到最近列表
-    if (_currentTaskTag != null && _currentTaskTag!.isNotEmpty) {
-      await _userPreferences?.addRecentTag(_currentTaskTag!);
+    if (finishedTaskTag != null && finishedTaskTag.isNotEmpty) {
+      await _userPreferences?.addRecentTag(finishedTaskTag);
     }
 
     // 事件分发
@@ -325,8 +327,6 @@ class IncenseViewModel extends ChangeNotifier {
         _eventController.add(IncenseSessionEvent.interrupted);
         break;
     }
-
-    _currentTaskTag = null;
   }
 
   /// 为小结页更新备注和感受

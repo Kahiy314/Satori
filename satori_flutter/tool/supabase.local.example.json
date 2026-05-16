@@ -1,0 +1,5 @@
+{
+  "SUPABASE_URL": "https://your-project.supabase.co",
+  "SUPABASE_PUBLISHABLE_KEY": "your-publishable-key",
+  "SUPABASE_AUTH_REDIRECT_URL": "satori://auth/callback"
+}

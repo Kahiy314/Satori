@@ -249,7 +249,7 @@ class SettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: SatoriTheme.spacingL),
-                  Text('账号管理', style: SatoriTypography.title),
+                  const Text('账号管理', style: SatoriTypography.title),
                   const SizedBox(height: SatoriTheme.spacingXS),
                   Text(
                     email,
@@ -302,6 +302,8 @@ class SettingsView extends StatelessWidget {
   }
 
   Future<void> _handleDeveloperModeTap(BuildContext context) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+
     if (entitlementController.isDeveloperModeEnabled) {
       final shouldDisable = await showDialog<bool>(
         context: context,
@@ -322,54 +324,75 @@ class SettingsView extends StatelessWidget {
       );
 
       if (shouldDisable == true) {
+        await WidgetsBinding.instance.endOfFrame;
         await entitlementController.setDeveloperModeEnabled(false);
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger?.showSnackBar(
           const SnackBar(content: Text('开发者模式已关闭')),
         );
       }
       return;
     }
 
-    final passwordController = TextEditingController();
     final password = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('开启开发者模式'),
-        content: TextField(
-          controller: passwordController,
-          autofocus: true,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: '输入密码',
-          ),
-          onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(passwordController.text),
-            child: const Text('开启'),
-          ),
-        ],
-      ),
+      builder: (_) => const _DeveloperModeDialog(),
     );
-    passwordController.dispose();
 
     if (password == null) {
       return;
     }
 
+    await WidgetsBinding.instance.endOfFrame;
     final unlocked = await entitlementController.unlockDeveloperMode(password);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger?.showSnackBar(
       SnackBar(
         content: Text(unlocked ? '开发者模式已开启' : '密码错误'),
       ),
+    );
+  }
+}
+
+class _DeveloperModeDialog extends StatefulWidget {
+  const _DeveloperModeDialog();
+
+  @override
+  State<_DeveloperModeDialog> createState() => _DeveloperModeDialogState();
+}
+
+class _DeveloperModeDialogState extends State<_DeveloperModeDialog> {
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('开启开发者模式'),
+      content: TextField(
+        controller: _passwordController,
+        autofocus: true,
+        obscureText: true,
+        decoration: const InputDecoration(
+          labelText: '输入密码',
+        ),
+        onSubmitted: (value) => Navigator.of(context).pop(value),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('取消'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_passwordController.text),
+          child: const Text('开启'),
+        ),
+      ],
     );
   }
 }

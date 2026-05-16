@@ -1,0 +1,35 @@
+name: Mini Program CI
+
+on:
+  push:
+    paths:
+      - "satori_miniprogram/**"
+      - ".github/workflows/miniprogram.yml"
+  pull_request:
+    paths:
+      - "satori_miniprogram/**"
+      - ".github/workflows/miniprogram.yml"
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: satori_miniprogram
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: satori_miniprogram/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck

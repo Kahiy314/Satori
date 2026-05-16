@@ -95,7 +95,10 @@ class StatsSessionDetailView extends StatelessWidget {
               ),
             ],
           ),
-          if (session.updatedAt != null || session.userId != null) ...[
+          if (session.updatedAt != null ||
+              session.userId != null ||
+              session.trustLevel != null ||
+              session.serverScore > 0) ...[
             const SizedBox(height: SatoriTheme.spacingL),
             _InfoSection(
               title: '同步信息',
@@ -111,6 +114,16 @@ class StatsSessionDetailView extends StatelessWidget {
                   value: session.updatedAt != null
                       ? _formatDateTime(session.updatedAt!)
                       : '未同步',
+                ),
+                _InfoRow(
+                  label: '可信级别',
+                  value: session.trustLevel != null
+                      ? _trustLevelLabel(session.trustLevel!)
+                      : '本地记录',
+                ),
+                _InfoRow(
+                  label: '云端积分',
+                  value: session.serverScore.toString(),
                 ),
               ],
             ),
@@ -169,6 +182,14 @@ class StatsSessionDetailView extends StatelessWidget {
       ReflectionMood.productive => '高效',
       ReflectionMood.calm => '平静',
       ReflectionMood.tired => '疲惫',
+    };
+  }
+
+  String _trustLevelLabel(String trustLevel) {
+    return switch (trustLevel) {
+      'client_reported' => '客户端上报',
+      'server_verified' => '服务端校验',
+      _ => trustLevel,
     };
   }
 }

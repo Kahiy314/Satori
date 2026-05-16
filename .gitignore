@@ -1,18 +1,26 @@
-# macOS
+# OS / editor
 .DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
 
-# Xcode / iOS Build files
+# Local scratch notes and generated build output
+doc/
 build/
 DerivedData/
 .build/
 .tools/
 Satori.xcodeproj/
-*.yml
 
-# VS Code
-.vscode/
+# Node / WeChat Mini Program local output
+node_modules/
+miniprogram_npm/
+satori_miniprogram/node_modules/
+satori_miniprogram/miniprogram_npm/
+satori_miniprogram/project.private.config.json
+satori_miniprogram/log.txt
 
-# Other common junk
-*.swp
-*.lock
-doc/
+# Local environment files
+.env
+.env.*

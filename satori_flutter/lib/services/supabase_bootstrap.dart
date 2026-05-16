@@ -19,7 +19,7 @@ class SupabaseBootstrap {
     try {
       await Supabase.initialize(
         url: SupabaseConfig.url,
-        anonKey: SupabaseConfig.anonKey,
+        anonKey: SupabaseConfig.publishableKey,
       );
       _initialized = true;
     } catch (error, stackTrace) {

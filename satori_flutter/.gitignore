@@ -36,6 +36,8 @@ migrate_working_dir/
 # Local environment and Supabase CLI temp files
 .env
 .env.*
+/tool/supabase.local.json
+/tool/supabase.production.json
 /supabase/.temp/
 
 # Symbolication related

@@ -16,9 +16,11 @@ enum MemberPromptLevel {
 /// 会员提示组件工厂 — U7
 ///
 /// 三级策略：轻提示 / 半拦截 / 强拦截。
-/// 所有提示都提供跳转到品茗界面的快捷方式。
+/// 调用方根据返回值决定是否继续跳转到品茗界面。
 class MemberPrompt {
   MemberPrompt._();
+
+  static const _dismissalSettleDuration = SatoriTheme.animNormal;
 
   /// 轻提示：在 widget 旁显示一个小标签
   static Widget lightBadge({
@@ -36,7 +38,7 @@ class MemberPrompt {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.local_cafe, size: 12, color: SatoriColors.teaAmber),
+            const Icon(Icons.local_cafe, size: 12, color: SatoriColors.teaAmber),
             const SizedBox(width: 4),
             Text(
               text,
@@ -55,48 +57,52 @@ class MemberPrompt {
     BuildContext context, {
     required String title,
     required String description,
-    required VoidCallback onGoTea,
-  }) {
-    return showModalBottomSheet<bool>(
+  }) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
+      requestFocus: false,
       backgroundColor: Colors.transparent,
       builder: (_) => _HalfBlockSheet(
         title: title,
         description: description,
-        onGoTea: onGoTea,
       ),
     );
+
+    await Future<void>.delayed(_dismissalSettleDuration);
+    return result;
   }
 
   /// 强拦截：全屏遮挡 dialog
-  static Future<void> showFullBlock(
+  static Future<bool?> showFullBlock(
     BuildContext context, {
     required String title,
     required String description,
-    required VoidCallback onGoTea,
-  }) {
-    return showDialog(
+  }) async {
+    final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
+      useRootNavigator: true,
+      requestFocus: false,
       builder: (_) => _FullBlockDialog(
         title: title,
         description: description,
-        onGoTea: onGoTea,
       ),
     );
+
+    await Future<void>.delayed(_dismissalSettleDuration);
+    return result;
   }
 }
 
 class _HalfBlockSheet extends StatelessWidget {
   final String title;
   final String description;
-  final VoidCallback onGoTea;
 
   const _HalfBlockSheet({
     required this.title,
     required this.description,
-    required this.onGoTea,
   });
 
   @override
@@ -126,15 +132,14 @@ class _HalfBlockSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: SatoriTheme.spacingL),
-          Icon(Icons.local_cafe, size: 32, color: SatoriColors.teaAmber),
+          const Icon(Icons.local_cafe, size: 32, color: SatoriColors.teaAmber),
           const SizedBox(height: SatoriTheme.spacingM),
-          Text(title,
-              style: SatoriTypography.title.copyWith(color: textColor)),
+          Text(title, style: SatoriTypography.title.copyWith(color: textColor)),
           const SizedBox(height: SatoriTheme.spacingS),
           Text(
             description,
-            style: SatoriTypography.body.copyWith(
-                color: textColor.withValues(alpha: 0.7)),
+            style: SatoriTypography.body
+                .copyWith(color: textColor.withValues(alpha: 0.7)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: SatoriTheme.spacingL),
@@ -145,16 +150,14 @@ class _HalfBlockSheet extends StatelessWidget {
                 backgroundColor: SatoriColors.teaAmber,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(SatoriTheme.cornerMedium),
+                  borderRadius: BorderRadius.circular(SatoriTheme.cornerMedium),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               onPressed: () {
                 Navigator.pop(context, true);
-                onGoTea();
               },
-              child: Text('前往品茗', style: SatoriTypography.subtitle),
+              child: const Text('前往品茗', style: SatoriTypography.subtitle),
             ),
           ),
           const SizedBox(height: SatoriTheme.spacingS),
@@ -174,12 +177,10 @@ class _HalfBlockSheet extends StatelessWidget {
 class _FullBlockDialog extends StatelessWidget {
   final String title;
   final String description;
-  final VoidCallback onGoTea;
 
   const _FullBlockDialog({
     required this.title,
     required this.description,
-    required this.onGoTea,
   });
 
   @override
@@ -199,15 +200,15 @@ class _FullBlockDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.local_cafe, size: 40, color: SatoriColors.teaAmber),
+            const Icon(Icons.local_cafe, size: 40, color: SatoriColors.teaAmber),
             const SizedBox(height: SatoriTheme.spacingM),
             Text(title,
                 style: SatoriTypography.title.copyWith(color: textColor)),
             const SizedBox(height: SatoriTheme.spacingS),
             Text(
               description,
-              style: SatoriTypography.body.copyWith(
-                  color: textColor.withValues(alpha: 0.7)),
+              style: SatoriTypography.body
+                  .copyWith(color: textColor.withValues(alpha: 0.7)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: SatoriTheme.spacingL),
@@ -224,15 +225,14 @@ class _FullBlockDialog extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
-                  onGoTea();
+                  Navigator.pop(context, true);
                 },
-                child: Text('前往品茗', style: SatoriTypography.subtitle),
+                child: const Text('前往品茗', style: SatoriTypography.subtitle),
               ),
             ),
             const SizedBox(height: SatoriTheme.spacingS),
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: Text('返回',
                   style: SatoriTypography.body
                       .copyWith(color: textColor.withValues(alpha: 0.5))),

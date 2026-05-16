@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/config/supabase_config.dart';
+
 enum AuthViewState {
   unavailable,
   signedOut,
@@ -10,11 +12,34 @@ enum AuthViewState {
   signedIn,
 }
 
+enum AuthUiEventType {
+  notice,
+  passwordRecovery,
+}
+
+class AuthUiEvent {
+  const AuthUiEvent._({required this.type, required this.message});
+
+  const AuthUiEvent.notice(String message)
+      : this._(type: AuthUiEventType.notice, message: message);
+
+  const AuthUiEvent.passwordRecovery(String message)
+      : this._(type: AuthUiEventType.passwordRecovery, message: message);
+
+  final AuthUiEventType type;
+  final String message;
+}
+
 class AuthController extends ChangeNotifier {
   AuthController({SupabaseClient? client}) : _client = client {
     _refreshStatus(notify: false);
-    _subscription = _client?.auth.onAuthStateChange.listen((_) {
+    _subscription = _client?.auth.onAuthStateChange.listen((data) {
+      final isExternalAuthCallback = !_busy;
       _busy = false;
+      _handleAuthStateChange(
+        event: data.event,
+        isExternalAuthCallback: isExternalAuthCallback,
+      );
       _refreshStatus();
     });
   }
@@ -26,6 +51,7 @@ class AuthController extends ChangeNotifier {
   bool _busy = false;
   String? _errorMessage;
   String? _infoMessage;
+  AuthUiEvent? _pendingUiEvent;
 
   AuthViewState get status => _status;
   bool get isAvailable => _client != null;
@@ -35,6 +61,12 @@ class AuthController extends ChangeNotifier {
   String? get infoMessage => _infoMessage;
   User? get currentUser => _client?.auth.currentUser;
   String? get currentEmail => currentUser?.email;
+
+  AuthUiEvent? takePendingUiEvent() {
+    final event = _pendingUiEvent;
+    _pendingUiEvent = null;
+    return event;
+  }
 
   String get accountLabel {
     if (isSignedIn && currentEmail != null && currentEmail!.isNotEmpty) {
@@ -108,6 +140,7 @@ class AuthController extends ChangeNotifier {
       final response = await _client.auth.signUp(
         email: email.trim(),
         password: password,
+        emailRedirectTo: SupabaseConfig.authRedirectUrl,
       );
       _infoMessage = response.session == null
           ? '注册成功。若项目开启了邮箱确认，请先完成验证后再登录。'
@@ -133,7 +166,10 @@ class AuthController extends ChangeNotifier {
 
     _beginRequest();
     try {
-      await _client.auth.resetPasswordForEmail(email.trim());
+      await _client.auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: SupabaseConfig.authRedirectUrl,
+      );
       _infoMessage = '重置密码邮件已发送，请检查邮箱。';
       return true;
     } on AuthException catch (error) {
@@ -141,6 +177,31 @@ class AuthController extends ChangeNotifier {
       return false;
     } catch (_) {
       _errorMessage = '发送重置邮件失败，请稍后重试。';
+      return false;
+    } finally {
+      _endRequest();
+    }
+  }
+
+  Future<bool> updatePassword({required String password}) async {
+    if (_client == null) {
+      _errorMessage = 'Supabase 尚未配置，无法更新密码。';
+      notifyListeners();
+      return false;
+    }
+
+    _beginRequest();
+    try {
+      await _client.auth.updateUser(
+        UserAttributes(password: password),
+      );
+      _infoMessage = '密码已更新。你现在可以直接使用新密码登录。';
+      return true;
+    } on AuthException catch (error) {
+      _errorMessage = error.message;
+      return false;
+    } catch (_) {
+      _errorMessage = '更新密码失败，请稍后重试。';
       return false;
     } finally {
       _endRequest();
@@ -173,6 +234,28 @@ class AuthController extends ChangeNotifier {
   void _endRequest() {
     _busy = false;
     _refreshStatus();
+  }
+
+  void _handleAuthStateChange({
+    required AuthChangeEvent event,
+    required bool isExternalAuthCallback,
+  }) {
+    switch (event) {
+      case AuthChangeEvent.passwordRecovery:
+        _infoMessage = '已验证重置密码请求，请设置一个新密码。';
+        _pendingUiEvent = const AuthUiEvent.passwordRecovery(
+          '已验证重置密码请求，请设置一个新密码。',
+        );
+        break;
+      case AuthChangeEvent.signedIn:
+        if (isExternalAuthCallback) {
+          _infoMessage = '邮箱已验证，已完成登录。';
+          _pendingUiEvent = const AuthUiEvent.notice('邮箱已验证，已完成登录。');
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   void _refreshStatus({bool notify = true}) {

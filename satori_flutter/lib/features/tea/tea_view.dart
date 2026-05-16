@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/models/member_tier.dart';
 import '../../core/theme/theme.dart';
-import '../../core/components/section_page_header.dart';
 import '../../services/entitlement_controller.dart';
 import '../../services/haptic_service.dart';
 import 'tea_view_model.dart';
@@ -42,64 +41,104 @@ class _TeaViewState extends State<TeaView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentTier =
         widget.entitlementController?.effectiveTier ?? _vm.currentTier;
     final developerModeEnabled =
         widget.entitlementController?.isDeveloperModeEnabled ?? false;
+    final backgroundColor = isDark ? SatoriColors.inkStone : Colors.white;
+    final textColor = isDark ? Colors.white : SatoriColors.inkSmoke;
+    final subColor =
+        isDark ? Colors.white54 : SatoriColors.inkSmoke.withValues(alpha: 0.6);
 
-    return SafeArea(
-      bottom: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: SatoriTheme.spacingL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionPageHeader(
-              title: '品茗',
-              padding: EdgeInsets.only(top: SatoriTheme.spacingM),
-            ),
-            const SizedBox(height: SatoriTheme.spacingL),
-
-            if (developerModeEnabled) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(SatoriTheme.spacingM),
-                decoration: BoxDecoration(
-                  color: SatoriColors.incenseEmber.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(SatoriTheme.cornerMedium),
-                  border: Border.all(
-                    color: SatoriColors.incenseEmber.withValues(alpha: 0.18),
-                  ),
-                ),
-                child: Text(
-                  '开发者模式已开启，会员内容当前处于调试解锁状态。',
-                  style: SatoriTypography.caption.copyWith(
-                    color: SatoriColors.incenseEmber,
-                  ),
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: textColor, size: 18),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(
+          '品茗',
+          style: SatoriTypography.subtitle.copyWith(color: textColor),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            SatoriTheme.spacingL,
+            SatoriTheme.spacingM,
+            SatoriTheme.spacingL,
+            SatoriTheme.spacingXXL,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '会员与权益',
+                style: SatoriTypography.caption.copyWith(
+                  color: subColor,
+                  letterSpacing: 0.4,
                 ),
               ),
+              const SizedBox(height: SatoriTheme.spacingS),
+              Text(
+                '在这里查看当前会员等级、调试权益状态与茶品说明。',
+                style: SatoriTypography.body.copyWith(color: subColor),
+              ),
+              const SizedBox(height: SatoriTheme.spacingL),
+
+              if (developerModeEnabled) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(SatoriTheme.spacingM),
+                  decoration: BoxDecoration(
+                    color: SatoriColors.incenseEmber.withValues(alpha: 0.08),
+                    borderRadius:
+                        BorderRadius.circular(SatoriTheme.cornerMedium),
+                    border: Border.all(
+                      color: SatoriColors.incenseEmber.withValues(alpha: 0.18),
+                    ),
+                  ),
+                  child: Text(
+                    '开发者模式已开启，会员内容当前处于调试解锁状态。',
+                    style: SatoriTypography.caption.copyWith(
+                      color: SatoriColors.incenseEmber,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: SatoriTheme.spacingL),
+              ],
+
+              // 当前等级卡
+              MembershipCardView(tier: currentTier, points: _vm.points),
+              const SizedBox(height: SatoriTheme.spacingL),
+
+              // 茶品列表
+              Text(
+                '茶品',
+                style: SatoriTypography.title.copyWith(color: textColor),
+              ),
+              const SizedBox(height: SatoriTheme.spacingM),
+              ...MemberTier.values
+                  .map((tier) => _buildTierRow(tier, currentTier)),
+              const SizedBox(height: SatoriTheme.spacingL),
+
+              // 积分
+              _buildPointsSection(),
+              const SizedBox(height: SatoriTheme.spacingL),
+
+              // 致谢
+              _buildAcknowledgement(),
               const SizedBox(height: SatoriTheme.spacingL),
             ],
-
-            // 当前等级卡
-            MembershipCardView(tier: currentTier, points: _vm.points),
-            const SizedBox(height: SatoriTheme.spacingL),
-
-            // 茶品列表
-            Text('茶品', style: SatoriTypography.title),
-            const SizedBox(height: SatoriTheme.spacingM),
-            ...MemberTier.values
-                .map((tier) => _buildTierRow(tier, currentTier)),
-            const SizedBox(height: SatoriTheme.spacingL),
-
-            // 积分
-            _buildPointsSection(),
-            const SizedBox(height: SatoriTheme.spacingL),
-
-            // 致谢
-            _buildAcknowledgement(),
-            const SizedBox(height: SatoriTheme.spacingL),
-          ],
+          ),
         ),
       ),
     );
@@ -195,7 +234,7 @@ class _TeaViewState extends State<TeaView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('积分', style: SatoriTypography.title),
+        const Text('积分', style: SatoriTypography.title),
         const SizedBox(height: SatoriTheme.spacingS),
         Container(
           padding: const EdgeInsets.all(SatoriTheme.spacingM),

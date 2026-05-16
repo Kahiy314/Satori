@@ -1,11 +1,11 @@
 {
-    "name": "satori",
-    "short_name": "satori",
+    "name": "Satori",
+    "short_name": "Satori",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F8F4E9",
+    "theme_color": "#D4A373",
+    "description": "Satori 是一个东方美学专注应用，支持焚香计时、白噪音、器乐、复盘统计与可选云同步。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
