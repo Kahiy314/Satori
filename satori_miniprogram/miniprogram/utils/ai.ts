@@ -1,8 +1,11 @@
-// ========== AI 接口调用（DeepSeek） ==========
+// ========== AI 总结入口 ==========
+//
+// 不要在小程序端硬编码第三方 API key。正式接入时应改为调用你自己的
+// 云函数或服务端代理，由服务端持有 DeepSeek / OpenAI 等供应商密钥。
 
 const AI_CONFIG = {
-  url: 'https://api.deepseek.com/v1/chat/completions',
-  apiKey: 'sk-000a94e874314b4e847a51752a5acb80',
+  url: '',
+  apiKey: '',
   model: 'deepseek-chat'
 }
 
@@ -49,26 +52,35 @@ class AIManager {
 
   // 调用 DeepSeek API
   private async callAPI(userPrompt: string): Promise<string> {
+    if (!AI_CONFIG.url || !AI_CONFIG.apiKey) {
+      console.warn('[AI] 未配置服务端代理，使用本地默认总结。')
+      return this.getDefaultSummary()
+    }
+
     const requestId = ++this.requestId
     console.log(`[AI] 请求 #${requestId}:`, userPrompt.substring(0, 50) + '...')
 
     try {
-      const response = await wx.request({
-        url: AI_CONFIG.url,
-        method: 'POST',
-        header: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AI_CONFIG.apiKey}`
-        },
-        data: {
-          model: AI_CONFIG.model,
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: userPrompt }
-          ] as Message[],
-          max_tokens: 200,
-          temperature: 0.7
-        }
+      const response = await new Promise<WechatMiniprogram.RequestSuccessCallbackResult>((resolve, reject) => {
+        wx.request({
+          url: AI_CONFIG.url,
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+          },
+          data: {
+            model: AI_CONFIG.model,
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
+              { role: 'user', content: userPrompt }
+            ] as Message[],
+            max_tokens: 200,
+            temperature: 0.7
+          },
+          success: resolve,
+          fail: reject
+        })
       })
 
       if (requestId !== this.requestId) {

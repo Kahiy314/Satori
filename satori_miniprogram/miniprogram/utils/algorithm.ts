@@ -70,8 +70,8 @@ export class TaskLinkedList {
       let current: TaskNode | null = dummy
       while (current?.next?.next) {
         if (priorityOrder[current.next.data.priority] > priorityOrder[current.next.next.data.priority]) {
-          const next1 = current.next
-          const next2 = next1.next
+          const next1: TaskNode = current.next
+          const next2 = next1.next as TaskNode
           next1.next = next2.next
           current.next = next2
           next2.next = next1
@@ -106,11 +106,9 @@ export class TaskLinkedList {
   // KMP 模式匹配（搜索任务名称）
   searchByName(pattern: string): Task[] {
     const arr = this.toArray()
-    const text = arr.map(t => t.name).join('\0')
     const lps = this.computeLPS(pattern)
     const result: Task[] = []
-    let i = 0, j = 0
-    let textIndex = 0
+    let j = 0
 
     for (const task of arr) {
       while (j > 0 && pattern[j] !== task.name[j]) {
@@ -121,7 +119,6 @@ export class TaskLinkedList {
         result.push(task)
         j = lps[j - 1]
       }
-      textIndex += task.name.length + 1
     }
     return result
   }
@@ -370,13 +367,6 @@ export class FocusGraph {
     const dates = Array.from(this.adjacencyList.keys())
       .filter(d => d >= startDate && d <= endDate)
       .sort()
-
-    function dfs(index: number): void {
-      if (index >= dates.length) return
-      const date = dates[index]
-      result.push(...(this.get(date)))
-      dfs(index + 1)
-    }
 
     const visited = new Set<string>()
     for (const date of dates) {

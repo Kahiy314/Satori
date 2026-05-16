@@ -33,8 +33,8 @@ const REST_SOUND_LABELS: Record<RestSoundType, string> = {
   none: '🔇 无'
 }
 
-let currentAudio: InnerAudioContext | null = null
-let restBellAudio: InnerAudioContext | null = null
+let currentAudio: WechatMiniprogram.InnerAudioContext | null = null
+let restBellAudio: WechatMiniprogram.InnerAudioContext | null = null
 let isPlaying: boolean = false
 
 class AudioManager {
@@ -46,15 +46,14 @@ class AudioManager {
     const filename = WHITE_NOISE_FILES[type]
     if (!filename) return
 
-    currentAudio = wx.createInnerAudioContext({
-      obeyMuteSwitch: false
-    })
+    currentAudio = wx.createInnerAudioContext()
+    currentAudio.obeyMuteSwitch = false
     currentAudio.src = `/assets/audio/white_noise/${filename}`
     currentAudio.loop = true
     currentAudio.play()
     isPlaying = true
 
-    currentAudio.onError((err) => {
+    currentAudio.onError((err: WechatMiniprogram.InnerAudioContextOnErrorCallbackResult) => {
       console.warn('白噪音播放失败:', err)
       isPlaying = false
     })
@@ -94,9 +93,8 @@ class AudioManager {
     const filename = REST_SOUND_FILES[type]
     if (!filename) return
 
-    restBellAudio = wx.createInnerAudioContext({
-      obeyMuteSwitch: false
-    })
+    restBellAudio = wx.createInnerAudioContext()
+    restBellAudio.obeyMuteSwitch = false
     restBellAudio.src = `/assets/audio/rest_bell/${filename}`
     restBellAudio.play()
 

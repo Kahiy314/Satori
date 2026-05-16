@@ -1,5 +1,4 @@
 import { FocusRecord } from '../../utils/storage'
-import { formatDateStr } from '../../utils/algorithm'
 import { aiManager } from '../../utils/ai'
 
 interface TrendItem {
@@ -49,12 +48,12 @@ Page({
     })
 
     const records: FocusRecord[] = []
-    this.generateTrendChart(records)
+    this.generateTrendChart()
     this.generateAISummary({ todayFocus, todayTasks, weekFocus, weekTasks, totalFocus, totalTasks }, records)
   },
 
-  generateTrendChart(records: FocusRecord[]) {
-    const mockDays = [
+  generateTrendChart() {
+    const mockDays: Array<{ minutes: number; day?: string }> = [
       { minutes: 45 },
       { minutes: 20 },
       { minutes: 80 },
@@ -152,7 +151,7 @@ Page({
 
       ctx.font = 'bold 10px sans-serif'
       ctx.fillStyle = '#d4a373'
-      ctx.textAlign = 'center'
+      ctx.setTextAlign('center')
       ctx.fillText(String(trendData[i].value), p.x, p.y - 8)
     })
 

@@ -1,5 +1,5 @@
 {
-  "description": "项目配置文件",
+  "description": "Satori 微信小程序项目配置",
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
   "setting": {
@@ -46,5 +46,5 @@
     "ignore": [],
     "include": []
   },
-  "appid": "wxf9eaa22999804c53"
+  "appid": "touristappid"
 }

@@ -1,15 +1,23 @@
 {
-  "name": "miniprogram-ts-quickstart",
+  "name": "satori-miniprogram",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "Satori 微信小程序版本",
   "scripts": {
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "",
+  "keywords": [
+    "satori",
+    "wechat-miniprogram",
+    "focus",
+    "pomodoro"
+  ],
+  "author": "Kahiy314, AvAn0sch",
+  "license": "MIT",
   "dependencies": {
   },
   "devDependencies": {
-    "miniprogram-api-typings": "^2.8.3-1"
+    "miniprogram-api-typings": "^2.8.3-1",
+    "typescript": "^5.8.0"
   }
 }

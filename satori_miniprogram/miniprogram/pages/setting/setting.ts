@@ -1,5 +1,5 @@
 // 设置页面
-import { storage, Settings } from '../../utils/storage'
+import { storage } from '../../utils/storage'
 
 Page({
   data: {
@@ -82,14 +82,10 @@ Page({
 
   applyTheme(theme: 'light' | 'dark' | 'auto') {
     let bgColor = '#f8f4e9'
-    let textColor = '#5d4037'
-
     if (theme === 'dark') {
       bgColor = '#2c2c2c'
-      textColor = '#e8dcc8'
     } else if (theme === 'light') {
       bgColor = '#f8f4e9'
-      textColor = '#5d4037'
     }
 
     wx.setBackgroundColor({ backgroundColor: bgColor })
@@ -183,8 +179,8 @@ Page({
 
   showAbout() {
     wx.showModal({
-      title: '关于',
-      content: '香韵番茄钟 v1.0.0\n\n弘扬国风文化，专注学习效率\n\n以儒家智慧助您日日精进',
+      title: '关于 Satori',
+      content: 'Satori Mini Program v1.0.0\n\n以东方美学承载任务、番茄钟、打卡与专注统计。',
       showCancel: false,
       confirmText: '知道了'
     })

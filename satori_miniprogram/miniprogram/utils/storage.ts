@@ -54,6 +54,8 @@ export interface Settings {
 }
 
 class Storage {
+  get<T>(key: string, defaultValue: T): T
+  get<T>(key: string): T | undefined
   get<T>(key: string, defaultValue?: T): T | undefined {
     const raw = wx.getStorageSync(key)
     if (raw === '') return defaultValue
