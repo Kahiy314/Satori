@@ -79,6 +79,12 @@ npm run typecheck
 **不配置 Supabase 能不能跑？**  
 可以。Flutter 版默认支持本地模式，账号入口会显示“云同步未配置 / 本地模式”，专注记录会保存在本地。
 
+**真机测试过吗？**  
+已在 Huawei Android 真机上通过 debug APK 做过基础冒烟测试。未注入 Supabase 配置的 APK 会进入本地模式，焚香、白噪音、基础行迹记录等离线能力可用；账号创建、登录和云同步需要重新构建带 Supabase 配置的 APK。
+
+**能不能用 `adb install` 时再接上 Supabase？**  
+不能。`adb install` 只安装已经构建好的 APK，Supabase 配置需要在 `flutter build` 或 `flutter run` 阶段通过 `--dart-define-from-file` 注入。详见 [发布说明](docs/release.md)。
+
 **Supabase publishable key 可以提交吗？**  
 示例文件可以提交，真实本地配置不要提交。publishable key 不是 service role secret，但安全边界必须依赖 RLS 和 RPC。
 

@@ -35,6 +35,30 @@ Release signing is not configured in Git. Create local signing material and keep
 
 Then add local signing config before producing store artifacts.
 
+For direct device smoke testing, build the APK first and then install that built artifact with ADB. `adb install` cannot inject Supabase configuration into an existing APK.
+
+Local-mode debug APK:
+
+```powershell
+cd satori_flutter
+flutter build apk --debug
+adb -s <device-id> install -r build\app\outputs\flutter-apk\app-debug.apk
+```
+
+Cloud-sync debug APK:
+
+```powershell
+cd satori_flutter
+flutter build apk --debug --dart-define-from-file=tool/supabase.local.json
+adb -s <device-id> install -r build\app\outputs\flutter-apk\app-debug.apk
+```
+
+For a connected device you can also install and run directly:
+
+```powershell
+flutter run -d <device-id> --dart-define-from-file=tool/supabase.local.json
+```
+
 ## iOS and macOS
 
 The bundle identifier is:
