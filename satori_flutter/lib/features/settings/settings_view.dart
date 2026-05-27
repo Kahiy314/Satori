@@ -194,178 +194,109 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-static int _developerModeFailedAttempts = 0;
-static const int _maxDeveloperModeAttempts = 5;
+  // 模拟补全未在代码中贴出的 _handleAuthTap 占位
+  void _handleAuthTap(BuildContext context) {}
 
-Future<void> _handleDeveloperModeTap(BuildContext context) async {
-final messenger = ScaffoldMessenger.maybeOf(context);
+  Future<void> _handleDeveloperModeTap(BuildContext context) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
 
-if (entitlementController.isDeveloperModeEnabled) {
-final shouldDisable = await showDialog<bool>(
-context: context,
-builder: (dialogContext) => AlertDialog(
-title: const Text('关闭开发者模式'),
-content: const Text('关闭后将恢复会员权限限制，正在播放的会员内容也会停止。'),
-actions: [
-TextButton(
-onPressed: () => Navigator.of(dialogContext).pop(false),
-child: const Text('取消'),
-),
-FilledButton(
-onPressed: () => Navigator.of(dialogContext).pop(true),
-child: const Text('关闭'),
-),
-],
-),
-);
+    if (entitlementController.isDeveloperModeEnabled) {
+      final shouldDisable = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('关闭开发者模式'),
+          content: const Text('关闭后将恢复会员权限限制，正在播放的会员内容也会停止。'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('关闭'),
+            ),
+          ],
+        ),
+      );
 
-```
-if (shouldDisable == true) {
-  await WidgetsBinding.instance.endOfFrame;
+      if (shouldDisable == true) {
+        await WidgetsBinding.instance.endOfFrame;
+        await entitlementController.setDeveloperModeEnabled(false);
+        if (!context.mounted) return;
 
-  await entitlementController.setDeveloperModeEnabled(false);
+        messenger?.showSnackBar(
+          const SnackBar(
+            content: Text('开发者模式已关闭'),
+          ),
+        );
+      }
+      return;
+    }
 
-  if (!context.mounted) return;
+    if (_developerModeFailedAttempts >= _maxDeveloperModeAttempts) {
+      messenger?.showSnackBar(
+        const SnackBar(
+          content: Text('密码错误次数过多，已禁止继续尝试'),
+        ),
+      );
+      return;
+    }
 
-  messenger?.showSnackBar(
-    const SnackBar(
-      content: Text('开发者模式已关闭'),
-    ),
-  );
-}
-
-return;
-```
-
-}
-
-if (_developerModeFailedAttempts >= _maxDeveloperModeAttempts) {
-messenger?.showSnackBar(
-const SnackBar(
-content: Text('密码错误次数过多，已禁止继续尝试'),
-),
-);
-return;
-}
-
-final password = await showDialog<String>(
-context: context,
-builder: (_) => _DeveloperModeDialog(
-failedAttempts: _developerModeFailedAttempts,
-maxAttempts: _maxDeveloperModeAttempts,
-),
-);
-
-if (password == null) {
-return;
-}
-
-await WidgetsBinding.instance.endOfFrame;
-
-final unlocked =
-await entitlementController.unlockDeveloperMode(password);
-
-if (!context.mounted) return;
-
-if (unlocked) {
-_developerModeFailedAttempts = 0;
-
-```
-messenger?.showSnackBar(
-  const SnackBar(
-    content: Text('开发者模式已开启'),
-  ),
-);
-```
-
-} else {
-_developerModeFailedAttempts++;
-
-```
-final remaining =
-    _maxDeveloperModeAttempts - _developerModeFailedAttempts;
-
-if (_developerModeFailedAttempts >= _maxDeveloperModeAttempts) {
-  messenger?.showSnackBar(
-    const SnackBar(
-      content: Text('密码错误次数过多，已禁止继续尝试'),
-    ),
-  );
-} else {
-  messenger?.showSnackBar(
-    SnackBar(
-      content: Text(
-        '密码错误，还可尝试 $remaining 次',
+    final password = await showDialog<String>(
+      context: context,
+      builder: (_) => _DeveloperModeDialog(
+        failedAttempts: _developerModeFailedAttempts,
+        maxAttempts: _maxDeveloperModeAttempts,
       ),
-    ),
-  );
-}
-```
+    );
 
-}
-}
+    if (password == null) {
+      return;
+    }
 
-class _DeveloperModeDialog extends StatefulWidget {
-const _DeveloperModeDialog({
-required this.failedAttempts,
-required this.maxAttempts,
-});
+    await WidgetsBinding.instance.endOfFrame;
+    final unlocked = await entitlementController.unlockDeveloperMode(password);
 
-final int failedAttempts;
-final int maxAttempts;
+    if (!context.mounted) return;
 
-@override
-State<_DeveloperModeDialog> createState() =>
-_DeveloperModeDialogState();
-}
+    if (unlocked) {
+      _developerModeFailedAttempts = 0;
+      messenger?.showSnackBar(
+        const SnackBar(
+          content: Text('开发者模式已开启'),
+        ),
+      );
+    } else {
+      _developerModeFailedAttempts++;
+      final remaining = _maxDeveloperModeAttempts - _developerModeFailedAttempts;
 
-class _DeveloperModeDialogState extends State<_DeveloperModeDialog> {
-final _passwordController = TextEditingController();
-
-@override
-void dispose() {
-_passwordController.dispose();
-super.dispose();
-}
-
-@override
-Widget build(BuildContext context) {
-return AlertDialog(
-title: const Text('开启开发者模式'),
-content: Column(
-mainAxisSize: MainAxisSize.min,
-children: [
-TextField(
-controller: _passwordController,
-autofocus: true,
-obscureText: true,
-decoration: InputDecoration(
-labelText: '输入密码',
-helperText:
-'剩余尝试次数：${widget.maxAttempts - widget.failedAttempts}',
-),
-onSubmitted: (value) =>
-Navigator.of(context).pop(value),
-),
-],
-),
-actions: [
-TextButton(
-onPressed: () => Navigator.of(context).pop(),
-child: const Text('取消'),
-),
-FilledButton(
-onPressed: () =>
-Navigator.of(context).pop(_passwordController.text),
-child: const Text('开启'),
-),
-],
-);
-}
+      if (_developerModeFailedAttempts >= _maxDeveloperModeAttempts) {
+        messenger?.showSnackBar(
+          const SnackBar(
+            content: Text('密码错误次数过多，已禁止继续尝试'),
+          ),
+        );
+      } else {
+        messenger?.showSnackBar(
+          SnackBar(
+            content: Text(
+              '密码错误，还可尝试 $remaining 次',
+            ),
+          ),
+        );
+      }
+    }
+  }
 }
 
 class _DeveloperModeDialog extends StatefulWidget {
-  const _DeveloperModeDialog();
+  const _DeveloperModeDialog({
+    required this.failedAttempts,
+    required this.maxAttempts,
+  });
+
+  final int failedAttempts;
+  final int maxAttempts;
 
   @override
   State<_DeveloperModeDialog> createState() => _DeveloperModeDialogState();
@@ -384,14 +315,20 @@ class _DeveloperModeDialogState extends State<_DeveloperModeDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('开启开发者模式'),
-      content: TextField(
-        controller: _passwordController,
-        autofocus: true,
-        obscureText: true,
-        decoration: const InputDecoration(
-          labelText: '输入密码',
-        ),
-        onSubmitted: (value) => Navigator.of(context).pop(value),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _passwordController,
+            autofocus: true,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: '输入密码',
+              helperText: '剩余尝试次数：${widget.maxAttempts - widget.failedAttempts}',
+            ),
+            onSubmitted: (value) => Navigator.of(context).pop(value),
+          ),
+        ],
       ),
       actions: [
         TextButton(
@@ -409,7 +346,6 @@ class _DeveloperModeDialogState extends State<_DeveloperModeDialog> {
 
 class _DeveloperModeBadge extends StatelessWidget {
   final bool enabled;
-
   const _DeveloperModeBadge({required this.enabled});
 
   @override
@@ -434,7 +370,6 @@ class _DeveloperModeBadge extends StatelessWidget {
 class _AccountStatusBadge extends StatelessWidget {
   final String label;
   final AuthViewState status;
-
   const _AccountStatusBadge({required this.label, required this.status});
 
   @override
