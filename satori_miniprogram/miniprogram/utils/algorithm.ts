@@ -426,3 +426,97 @@ export function formatDateStr(date: Date): string {
 export function getToday(): string {
   return toDateString(new Date())
 }
+
+// ========== 专注统计聚合 ==========
+export interface FocusStats {
+  todayFocus: number
+  todayTasks: number
+  weekFocus: number
+  weekTasks: number
+  totalFocus: number
+  totalTasks: number
+}
+
+export interface FocusTrendDay {
+  date: string
+  day: string
+  minutes: number
+}
+
+export function aggregateFocusRecords(records: FocusRecord[], today: Date = new Date()): FocusStats {
+  const todayStr = formatDateStr(today)
+  const weekStart = getWeekStart(today)
+  const weekStartStr = formatDateStr(weekStart)
+  const weekEndStr = formatDateStr(addDays(weekStart, 6))
+
+  const todayRecords = records.filter(record => record.date === todayStr)
+  const weekRecords = records.filter(record => record.date >= weekStartStr && record.date <= weekEndStr)
+
+  return {
+    todayFocus: sumFocusMinutes(todayRecords),
+    todayTasks: countUniqueFocusTasks(todayRecords),
+    weekFocus: sumFocusMinutes(weekRecords),
+    weekTasks: countUniqueFocusTasks(weekRecords),
+    totalFocus: sumFocusMinutes(records),
+    totalTasks: countUniqueFocusTasks(records)
+  }
+}
+
+export function buildSevenDayFocusTrend(records: FocusRecord[], today: Date = new Date()): FocusTrendDay[] {
+  const minutesByDate = new Map<string, number>()
+  records.forEach(record => {
+    minutesByDate.set(record.date, (minutesByDate.get(record.date) || 0) + record.duration)
+  })
+
+  const endDate = startOfDay(today)
+  const trend: FocusTrendDay[] = []
+  for (let i = 6; i >= 0; i--) {
+    const date = addDays(endDate, -i)
+    const dateStr = formatDateStr(date)
+    trend.push({
+      date: dateStr,
+      day: String(date.getDate()),
+      minutes: minutesByDate.get(dateStr) || 0
+    })
+  }
+  return trend
+}
+
+export function getFocusTrendScaleMax(maxMinutes: number): number {
+  const safeMax = Math.max(maxMinutes, 0)
+  const step = Math.ceil(Math.max(safeMax, 100) / 4 / 25) * 25
+  return step * 4
+}
+
+export function getFocusTrendYAxisLabels(maxMinutes: number): string[] {
+  const scaleMax = getFocusTrendScaleMax(maxMinutes)
+  return [scaleMax, scaleMax * 0.75, scaleMax * 0.5, scaleMax * 0.25, 0]
+    .map(value => String(Math.round(value)))
+}
+
+function sumFocusMinutes(records: FocusRecord[]): number {
+  return records.reduce((sum, record) => sum + record.duration, 0)
+}
+
+function countUniqueFocusTasks(records: FocusRecord[]): number {
+  const taskIds = new Set<string>()
+  records.forEach(record => taskIds.add(record.taskId))
+  return taskIds.size
+}
+
+function getWeekStart(date: Date): Date {
+  const start = startOfDay(date)
+  const day = start.getDay()
+  const mondayOffset = day === 0 ? -6 : 1 - day
+  return addDays(start, mondayOffset)
+}
+
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function addDays(date: Date, days: number): Date {
+  const nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + days)
+  return nextDate
+}

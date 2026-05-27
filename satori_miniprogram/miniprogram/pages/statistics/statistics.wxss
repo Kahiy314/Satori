@@ -68,6 +68,28 @@
   color: #a1887f;
 }
 
+.empty-state {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  background: #fffaf1;
+  border: 1px dashed #d4a373;
+  border-radius: 15rpx;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 8rpx;
+}
+
+.empty-desc {
+  font-size: 24rpx;
+  color: #8c7b6c;
+  line-height: 1.6;
+}
+
 /* 趋势图区域 */
 .trend-section {
   background: rgba(255, 255, 255, 0.9);

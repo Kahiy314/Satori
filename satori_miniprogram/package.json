@@ -4,6 +4,7 @@
   "private": true,
   "description": "Satori 微信小程序版本",
   "scripts": {
+    "test:focus-stats": "node scripts/test-focus-statistics.js",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
