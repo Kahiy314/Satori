@@ -1,4 +1,10 @@
-import { FocusRecord } from '../../utils/storage'
+import { FocusRecord, storage } from '../../utils/storage'
+import {
+  aggregateFocusRecords,
+  buildSevenDayFocusTrend,
+  getFocusTrendScaleMax,
+  getFocusTrendYAxisLabels
+} from '../../utils/algorithm'
 import { aiManager } from '../../utils/ai'
 
 interface TrendItem {
@@ -19,6 +25,7 @@ Page({
       totalFocus: 0,
       totalTasks: 0
     },
+    hasFocusRecords: false,
     trendData: [] as TrendItem[],
     yAxisLabels: [] as string[],
     aiSummary: {
@@ -36,50 +43,31 @@ Page({
   },
 
   loadStats() {
-    const todayFocus = 45
-    const todayTasks = 2
-    const weekFocus = 45 + 20 + 80 + 55 + 35 + 90 + 60
-    const weekTasks = 8
-    const totalFocus = weekFocus + 200
-    const totalTasks = weekTasks + 15
+    const records = storage.getFocusRecords()
+    const statsData = aggregateFocusRecords(records)
 
     this.setData({
-      statsData: { todayFocus, todayTasks, weekFocus, weekTasks, totalFocus, totalTasks }
+      statsData,
+      hasFocusRecords: records.length > 0
     })
 
-    const records: FocusRecord[] = []
-    this.generateTrendChart()
-    this.generateAISummary({ todayFocus, todayTasks, weekFocus, weekTasks, totalFocus, totalTasks }, records)
+    this.generateTrendChart(records)
+    this.generateAISummary(statsData, records)
   },
 
-  generateTrendChart() {
-    const mockDays: Array<{ minutes: number; day?: string }> = [
-      { minutes: 45 },
-      { minutes: 20 },
-      { minutes: 80 },
-      { minutes: 55 },
-      { minutes: 35 },
-      { minutes: 90 },
-      { minutes: 60 }
-    ]
+  generateTrendChart(records: FocusRecord[]) {
+    const dailyTrend = buildSevenDayFocusTrend(records)
+    const maxMinutes = Math.max(...dailyTrend.map(item => item.minutes))
+    const scaleMax = getFocusTrendScaleMax(maxMinutes)
+    const yLabels = getFocusTrendYAxisLabels(maxMinutes)
 
-    const now = new Date()
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now)
-      d.setDate(now.getDate() - i)
-      mockDays[6 - i].day = `${d.getDate()}`
-    }
-
-    const MAX_MINUTES = 100
-    const yLabels = ['100', '75', '50', '25', '0']
-
-    const trendData: TrendItem[] = mockDays.map((d, index) => {
-      const xPercent = (index / (mockDays.length - 1)) * 100
-      const x = (index / (mockDays.length - 1))
-      const y = 1 - d.minutes / MAX_MINUTES
+    const trendData: TrendItem[] = dailyTrend.map((item, index) => {
+      const xPercent = (index / (dailyTrend.length - 1)) * 100
+      const x = (index / (dailyTrend.length - 1))
+      const y = 1 - item.minutes / scaleMax
       return {
-        day: (d as { day?: string }).day || '',
-        value: d.minutes,
+        day: item.day,
+        value: item.minutes,
         xPercent,
         x,
         y
@@ -200,8 +188,8 @@ Page({
 
   refreshAI() {
     wx.showToast({ title: 'AI总结生成中...', icon: 'loading', duration: 2000 })
-    const records: FocusRecord[] = []
-    const stats = this.data.statsData
+    const records = storage.getFocusRecords()
+    const stats = aggregateFocusRecords(records)
     this.generateAISummary(stats, records)
   }
 })
