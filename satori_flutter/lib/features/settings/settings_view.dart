@@ -191,167 +191,174 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  Future<void> _handleAuthTap(BuildContext context) async {
-    if (!authController.isAvailable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(SupabaseConfig.missingConfigurationHint)),
-      );
-      return;
-    }
+static int _developerModeFailedAttempts = 0;
+static const int _maxDeveloperModeAttempts = 5;
 
-    if (authController.isSignedIn) {
-      await _showAccountActions(context);
-      return;
-    }
+Future<void> _handleDeveloperModeTap(BuildContext context) async {
+final messenger = ScaffoldMessenger.maybeOf(context);
 
-    authController.clearMessages();
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => AuthSheet(authController: authController),
-    );
+if (entitlementController.isDeveloperModeEnabled) {
+final shouldDisable = await showDialog<bool>(
+context: context,
+builder: (dialogContext) => AlertDialog(
+title: const Text('关闭开发者模式'),
+content: const Text('关闭后将恢复会员权限限制，正在播放的会员内容也会停止。'),
+actions: [
+TextButton(
+onPressed: () => Navigator.of(dialogContext).pop(false),
+child: const Text('取消'),
+),
+FilledButton(
+onPressed: () => Navigator.of(dialogContext).pop(true),
+child: const Text('关闭'),
+),
+],
+),
+);
 
-    if (authController.isSignedIn) {
-      await onAuthenticated?.call();
-    }
-  }
+```
+if (shouldDisable == true) {
+  await WidgetsBinding.instance.endOfFrame;
 
-  Future<void> _showAccountActions(BuildContext context) async {
-    final email = authController.currentEmail ?? '当前账号';
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final bgColor = isDark ? const Color(0xFF1E1E20) : Colors.white;
-        return Container(
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(SatoriTheme.spacingL),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: SatoriTheme.spacingL),
-                  const Text('账号管理', style: SatoriTypography.title),
-                  const SizedBox(height: SatoriTheme.spacingXS),
-                  Text(
-                    email,
-                    style: SatoriTypography.caption.copyWith(
-                      color: Colors.grey.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  const SizedBox(height: SatoriTheme.spacingL),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.mail_outline),
-                    title: const Text('发送重置密码邮件'),
-                    onTap: () async {
-                      Navigator.of(context).pop();
-                      final success = await authController.sendPasswordReset(
-                        email,
-                      );
-                      if (!context.mounted) return;
-                      final message = success
-                          ? (authController.infoMessage ?? '重置密码邮件已发送')
-                          : (authController.errorMessage ?? '发送失败');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(message)),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.logout),
-                    title: const Text('退出登录'),
-                    onTap: () async {
-                      Navigator.of(context).pop();
-                      await authController.signOut();
-                      if (!context.mounted) return;
-                      final message = authController.infoMessage ??
-                          authController.errorMessage ??
-                          '退出登录完成';
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(message)),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  await entitlementController.setDeveloperModeEnabled(false);
 
-  Future<void> _handleDeveloperModeTap(BuildContext context) async {
-    final messenger = ScaffoldMessenger.maybeOf(context);
+  if (!context.mounted) return;
 
-    if (entitlementController.isDeveloperModeEnabled) {
-      final shouldDisable = await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('关闭开发者模式'),
-          content: const Text('关闭后将恢复会员权限限制，正在播放的会员内容也会停止。'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('取消'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('关闭'),
-            ),
-          ],
-        ),
-      );
+  messenger?.showSnackBar(
+    const SnackBar(
+      content: Text('开发者模式已关闭'),
+    ),
+  );
+}
 
-      if (shouldDisable == true) {
-        await WidgetsBinding.instance.endOfFrame;
-        await entitlementController.setDeveloperModeEnabled(false);
-        if (!context.mounted) return;
-        messenger?.showSnackBar(
-          const SnackBar(content: Text('开发者模式已关闭')),
-        );
-      }
-      return;
-    }
+return;
+```
 
-    final password = await showDialog<String>(
-      context: context,
-      builder: (_) => const _DeveloperModeDialog(),
-    );
+}
 
-    if (password == null) {
-      return;
-    }
+if (_developerModeFailedAttempts >= _maxDeveloperModeAttempts) {
+messenger?.showSnackBar(
+const SnackBar(
+content: Text('密码错误次数过多，已禁止继续尝试'),
+),
+);
+return;
+}
 
-    await WidgetsBinding.instance.endOfFrame;
-    final unlocked = await entitlementController.unlockDeveloperMode(password);
-    if (!context.mounted) return;
-    messenger?.showSnackBar(
-      SnackBar(
-        content: Text(unlocked ? '开发者模式已开启' : '密码错误'),
+final password = await showDialog<String>(
+context: context,
+builder: (_) => _DeveloperModeDialog(
+failedAttempts: _developerModeFailedAttempts,
+maxAttempts: _maxDeveloperModeAttempts,
+),
+);
+
+if (password == null) {
+return;
+}
+
+await WidgetsBinding.instance.endOfFrame;
+
+final unlocked =
+await entitlementController.unlockDeveloperMode(password);
+
+if (!context.mounted) return;
+
+if (unlocked) {
+_developerModeFailedAttempts = 0;
+
+```
+messenger?.showSnackBar(
+  const SnackBar(
+    content: Text('开发者模式已开启'),
+  ),
+);
+```
+
+} else {
+_developerModeFailedAttempts++;
+
+```
+final remaining =
+    _maxDeveloperModeAttempts - _developerModeFailedAttempts;
+
+if (_developerModeFailedAttempts >= _maxDeveloperModeAttempts) {
+  messenger?.showSnackBar(
+    const SnackBar(
+      content: Text('密码错误次数过多，已禁止继续尝试'),
+    ),
+  );
+} else {
+  messenger?.showSnackBar(
+    SnackBar(
+      content: Text(
+        '密码错误，还可尝试 $remaining 次',
       ),
-    );
-  }
+    ),
+  );
+}
+```
+
+}
+}
+
+class _DeveloperModeDialog extends StatefulWidget {
+const _DeveloperModeDialog({
+required this.failedAttempts,
+required this.maxAttempts,
+});
+
+final int failedAttempts;
+final int maxAttempts;
+
+@override
+State<_DeveloperModeDialog> createState() =>
+_DeveloperModeDialogState();
+}
+
+class _DeveloperModeDialogState extends State<_DeveloperModeDialog> {
+final _passwordController = TextEditingController();
+
+@override
+void dispose() {
+_passwordController.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return AlertDialog(
+title: const Text('开启开发者模式'),
+content: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+TextField(
+controller: _passwordController,
+autofocus: true,
+obscureText: true,
+decoration: InputDecoration(
+labelText: '输入密码',
+helperText:
+'剩余尝试次数：${widget.maxAttempts - widget.failedAttempts}',
+),
+onSubmitted: (value) =>
+Navigator.of(context).pop(value),
+),
+],
+),
+actions: [
+TextButton(
+onPressed: () => Navigator.of(context).pop(),
+child: const Text('取消'),
+),
+FilledButton(
+onPressed: () =>
+Navigator.of(context).pop(_passwordController.text),
+child: const Text('开启'),
+),
+],
+);
+}
 }
 
 class _DeveloperModeDialog extends StatefulWidget {
