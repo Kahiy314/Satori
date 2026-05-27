@@ -48,7 +48,7 @@ export interface CheckInRecord {
 
 export interface Settings {
   theme: 'light' | 'dark' | 'auto'
-  whiteNoise: 'rain' | 'waves' | 'fire' | 'gugin' | 'none'
+  whiteNoise: 'rain' | 'waves' | 'fire' | 'guqin' | 'none'
   restSound: 'guzheng' | 'bowl' | 'birds' | 'none'
   restDuration: number
 }
@@ -193,12 +193,18 @@ class Storage {
 
   // ========== 设置相关 ==========
   getSettings(): Settings {
-    return this.get<Settings>(STORAGE_KEYS.SETTINGS, {
+    const settings = this.get<Settings>(STORAGE_KEYS.SETTINGS, {
       theme: 'light',
       whiteNoise: 'rain',
       restSound: 'guzheng',
       restDuration: 5
     })
+    // Migrate legacy 'gugin' to 'guqin'
+    if ((settings as any).whiteNoise === 'gugin') {
+      settings.whiteNoise = 'guqin' as Settings['whiteNoise']
+      this.setSettings(settings)
+    }
+    return settings
   }
 
   setSettings(settings: Settings): void {

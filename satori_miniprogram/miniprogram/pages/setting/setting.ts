@@ -4,7 +4,7 @@ import { storage } from '../../utils/storage'
 Page({
   data: {
     theme: 'light' as 'light' | 'dark' | 'auto',
-    whiteNoise: 'rain' as 'rain' | 'waves' | 'fire' | 'gugin' | 'none',
+    whiteNoise: 'rain' as 'rain' | 'waves' | 'fire' | 'guqin' | 'none',
     restSound: 'guzheng' as 'guzheng' | 'bowl' | 'birds' | 'none',
     restDuration: 5,
 
@@ -24,7 +24,7 @@ Page({
         { value: 'rain', label: '🌧️ 雨声', selected: true },
         { value: 'waves', label: '🌊 海浪', selected: false },
         { value: 'fire', label: '🔥 篝火', selected: false },
-        { value: 'gugin', label: '🎵 古琴', selected: false },
+        { value: 'guqin', label: '🎵 古琴', selected: false },
         { value: 'none', label: '🔇 无', selected: false }
       ],
       restSoundOptions: [
@@ -124,7 +124,7 @@ Page({
   },
 
   selectWhiteNoise(e: any) {
-    const noise = e.currentTarget.dataset.noise as 'rain' | 'waves' | 'fire' | 'gugin' | 'none'
+    const noise = e.currentTarget.dataset.noise as 'rain' | 'waves' | 'fire' | 'guqin' | 'none'
     const updatedOptions = this.data.settings.whiteNoiseOptions.map(option => ({
       ...option,
       selected: option.value === noise
@@ -191,7 +191,7 @@ Page({
       rain: '🌧️ 雨声',
       waves: '🌊 海浪',
       fire: '🔥 篝火',
-      gugin: '🎵 古琴',
+      guqin: '🎵 古琴',
       none: '🔇 无'
     }
     return map[value] || '无'

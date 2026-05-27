@@ -38,7 +38,7 @@
         bindtap="selectWhiteNoise"
       >
         <text class="option-icon">
-          {{item.value === 'rain' ? '🌧️' : item.value === 'waves' ? '🌊' : item.value === 'fire' ? '🔥' : item.value === 'gugin' ? '🎵' : '🔇'}}
+          {{item.value === 'rain' ? '🌧️' : item.value === 'waves' ? '🌊' : item.value === 'fire' ? '🔥' : item.value === 'guqin' ? '🎵' : '🔇'}}
         </text>
         <text class="option-text">{{item.label}}</text>
       </view>
