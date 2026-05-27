@@ -1,13 +1,13 @@
 // ========== 音频管理 ==========
 
-export type WhiteNoiseType = 'rain' | 'waves' | 'fire' | 'gugin' | 'none'
+export type WhiteNoiseType = 'rain' | 'waves' | 'fire' | 'guqin' | 'none'
 export type RestSoundType = 'guzheng' | 'bowl' | 'birds' | 'none'
 
 const WHITE_NOISE_FILES: Record<WhiteNoiseType, string> = {
   rain: 'rain.mp3',
   waves: 'wave.mp3',
   fire: 'fire.mp3',
-  gugin: 'guqin.mp3',
+  guqin: 'guqin.mp3',
   none: ''
 }
 
@@ -22,7 +22,7 @@ const WHITE_NOISE_LABELS: Record<WhiteNoiseType, string> = {
   rain: '🌧️ 雨声',
   waves: '🌊 海浪',
   fire: '🔥 篝火',
-  gugin: '🎵 古琴',
+  guqin: '🎵 古琴',
   none: '🔇 无'
 }
 
@@ -71,7 +71,7 @@ class AudioManager {
 
   // 切换白噪音
   toggleWhiteNoise(current: WhiteNoiseType): WhiteNoiseType {
-    const order: WhiteNoiseType[] = ['rain', 'waves', 'fire', 'gugin', 'none']
+    const order: WhiteNoiseType[] = ['rain', 'waves', 'fire', 'guqin', 'none']
     const index = order.indexOf(current)
     const next = order[(index + 1) % order.length]
     if (next === 'none') {
