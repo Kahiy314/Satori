@@ -17,7 +17,10 @@ class SettingsView extends StatelessWidget {
   final Future<void> Function()? onAuthenticated;
   final EntitlementController entitlementController;
   static const _appVersion = 'v1.0.0';
-
+  
+  static int _developerModeFailedAttempts = 0;
+  static const int _maxDeveloperModeAttempts = 5;
+  
   const SettingsView({
     super.key,
     this.onTeaTap,
