@@ -21,6 +21,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   material_symbols_icons: ^4.2815.0
   flutter_svg: ^2.0.17
+  redis: ^4.1.0
 
 dev_dependencies:
   flutter_test:

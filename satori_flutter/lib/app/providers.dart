@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/cached_session_repository.dart';
 import '../services/local_session_repository.dart';
 import '../services/local_stats_aggregator.dart';
 import '../services/local_user_preferences.dart';
@@ -9,6 +11,7 @@ import '../services/auth_controller.dart';
 import '../services/platform_focus_activity_service.dart';
 import '../services/platform_media_session_service.dart';
 import '../services/entitlement_controller.dart';
+import '../services/redis_cache_service.dart';
 import '../services/session_repository.dart';
 import '../services/stats_aggregator.dart';
 import '../services/user_preferences.dart';
@@ -19,6 +22,14 @@ import '../services/supabase_session_repository.dart';
 import '../features/incense/incense_view_model.dart';
 
 // ── 服务层 Providers ──
+
+final redisCacheServiceProvider = Provider<RedisCacheService>((ref) {
+  final host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+  final service = RedisCacheService(host: host, port: 6379);
+  unawaited(service.initialize());
+  ref.onDispose(() => service.dispose());
+  return service;
+});
 
 final localSessionRepositoryProvider = Provider<LocalSessionRepository>((ref) {
   return LocalSessionRepository();
@@ -41,7 +52,9 @@ final supabaseSessionRepositoryProvider =
 });
 
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
-  return ref.watch(supabaseSessionRepositoryProvider);
+  final delegate = ref.watch(supabaseSessionRepositoryProvider);
+  final cache = ref.watch(redisCacheServiceProvider);
+  return CachedSessionRepository(delegate: delegate, cache: cache);
 });
 
 final statsAggregatorProvider = Provider<StatsAggregator>((ref) {
